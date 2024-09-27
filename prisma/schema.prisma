@@ -27,15 +27,23 @@ model OTP {
   expiresAt   DateTime
 }
 
-model Product{
-  id                  Int      @id @default(autoincrement())
-  productName         String
-  ProductDescription  String
-  type                String
-  quantity            Int
-  ownerName           String
-  price               Int
-  review              Int
-  imageURL            String
-  weight              Int
+enum ProductType {
+  Vegetable
+  Fruit
+  Grain
+  Millet
 }
+
+model Product {
+  id                Int      @id @default(autoincrement())  // Primary Key with auto-increment
+  productName       String   @db.VarChar(255)               // Same as VARCHAR(255)
+  ProductDescription String?  @db.Text                      // TEXT in SQL, optional
+  type              ProductType                             // Enum type defined below
+  quantity          Int                                     
+  ownerName         String   @db.VarChar(255)               // Same as VARCHAR(255)
+  price             Int                                      // Changed to INT
+  review            Int?                                     // Optional field
+  imageURL          String?  @db.VarChar(255)               // Optional and VARCHAR(255)
+  weight            Int                                      // Changed to INT
+}
+

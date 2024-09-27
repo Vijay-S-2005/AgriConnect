@@ -81,3 +81,14 @@ body {
   color: #fff;
 }
 
+
+
+/* Hide the scrollbar but keep scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+  scrollbar-width: none;  /* For Firefox */
+}

@@ -7,7 +7,7 @@ export default function DetailedProduct() {
     // Static Product Data
     const product = {
         title: 'Product',
-        description: 'Fresh Product.',
+        description: 'Fresh Product from farm  Product from farm  Product from farm  Product from farm  Product from farm .',
         price: '$799.99',
         rating: 4.7,
         productType: 'Electronics',
@@ -24,9 +24,9 @@ export default function DetailedProduct() {
     ];
 
     return (
-        <div className="flex flex-wrap p-8">
-            {/* Left Side - Full Display Image */}
-            <div className="w-full md:w-1/2 flex justify-center items-center">
+        <div className="flex flex-wrap p-8 h-screen">
+            {/* Left Side - Full Display Image (Sticky) */}
+            <div className="w-full md:w-1/2 flex justify-center items-center sticky top-0 h-screen">
                 <Image
                     className="border-2 border-gray-300"
                     src={product.image} // Static image source
@@ -37,14 +37,14 @@ export default function DetailedProduct() {
                 />
             </div>
 
-            {/* Right Side - Product Details */}
-            <div className="w-full md:w-1/2 flex flex-col justify-between p-8">
+            {/* Right Side - Product Details with Scrollable Content */}
+            <div className="w-full md:w-1/2 h-screen overflow-y-scroll no-scrollbar p-8 border-2">
                 {/* Title and Description */}
                 <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
                 <p className="text-gray-700 mb-4">{product.description}</p>
 
                 {/* Price and Rating */}
-                <div className="flex items-center mb-4">
+                <div className="flex items-center mb-4">    
                     <span className="text-2xl font-semibold">{product.price}</span>
                     <span className="ml-4 text-yellow-500">
                         {'⭐'.repeat(Math.floor(product.rating))}{' '}
