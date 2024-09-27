@@ -1,0 +1,18 @@
+{
+    "Index": {
+      "title": "Agri Connect"
+    },
+    "Categories": {
+      "freshVegetabes": "Fresh Vegetables"
+    },
+    "Header": {
+      "translate": "Translate",
+      "cart": "Cart",
+      "profile": "Profile",
+      "userLogin": "User's Login",
+      "farmerLogin": "Farmer's Login",
+      "order": "Your's Orders",
+      "searchPlaceholder": "Search for Products",
+      "search": "Search"
+    }
+  }

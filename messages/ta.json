@@ -1,0 +1,18 @@
+{
+    "Index": {
+      "title": "அக்ரி இணைப்பு"
+    },
+    "Categories": {
+      "freshVegetabes": "புதிய காய்கறிகள்"
+    },
+    "Header": {
+      "translate": "மொழிபெயர்",
+      "cart": "வண்டி",
+      "profile": "சுயவிவரம்",
+      "userLogin": "பயனரின் உள்நுழைவு",
+      "farmerLogin": "விவசாயி உள்நுழைவு",
+      "order": "உங்கள் ஆர்டர்கள்",
+      "searchPlaceholder": "தயாரிப்புகளைத் தேடுங்கள்",
+      "search": "தேடு"
+    }
+  }

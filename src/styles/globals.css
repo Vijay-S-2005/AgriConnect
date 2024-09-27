@@ -1,0 +1,83 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities'; 
+/* 
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+} */
+/* styles/globals.css or styles/Carousel.module.css */
+.slider-container {
+  height: 90vh; /* 50% of the viewport height */
+  width: calc(100% - 0px); /* Full width minus the space on left and right */
+  margin: 0px auto; /* 20px space on top and bottom, center horizontally */
+  border-radius: 0px; /* Rounded corners */
+  overflow: hidden; /* Ensures the content respects the border radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+  background-color: #fff; /* Optional: Background color to enhance rounded corners visibility */
+}
+
+.slider-container .swiper {
+  height: 100%; /* Ensures the swiper occupies the full height of the container */
+}
+
+.slider-container .swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0px; /* Ensures the corners of individual slides are rounded */
+}
+
+.slider-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the entire slide without distortion */
+  border-radius: 0px; /* Ensures the image itself has rounded corners */
+}
+
+/* global.css */
+.custom-sidebar {
+  background-color: #228B22 !important; /* Forest Green */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  overflow: auto;
+  transition: left 0.3s ease;
+  z-index: 50;
+}
+
+.custom-sidebar .menu-item {
+  color: #fff; /* White text */
+}
+
+.custom-sidebar .submenu-title {
+  color: #fff;
+}
+
