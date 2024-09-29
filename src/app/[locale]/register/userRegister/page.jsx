@@ -75,7 +75,7 @@ export default function Register() {
   
     if (validate()) {
       formData.phoneNumber = "+91" + formData.phoneNumber;
-      console.log(formData.phoneNumber);
+     
       try {
         const response = await axios.post(`/${localeActive}/api/otp/createOTP`, { phoneNumber: formData.phoneNumber });
         if(response.status == 200) {

@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from "next-intl";
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const localeActive = useLocale();
@@ -11,7 +13,7 @@ export default function Login() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [errors, setErrors] = useState({});
-
+  const router = useRouter();
   const toggleOtpLogin = () => {
     setIsOtpLogin(!isOtpLogin);
     setErrors({});
@@ -40,22 +42,49 @@ export default function Login() {
       } else if (!/^\d{10}$/.test(phone)) {
         newErrors.phone = 'Invalid phone number';
       }
-      if (!otp) {
-        newErrors.otp = 'OTP is required';
-      }
+      // if (!otp) {
+      //   newErrors.otp = 'OTP is required';
+      // }
     }
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+   
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       // Proceed with form submission (API call or further processing)
       console.log('Form submitted', { email, password, phone, otp });
+      if(isOtpLogin){
+        console.log("OTP login",isOtpLogin);
+        try {
+          const response = await axios.post(`/${localeActive}/api/otp/createOTP`, { phoneNumber: '+91'+phone });
+          console.log(response);
+          if(response.status == 200) {
+            console.log("OTP sent successfully");
+            router.push(`/${localeActive}/register/otpVerification`);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }else{
+        console.log("Email login",isOtpLogin);
+        try {
+          const response = await axios.post(`/${localeActive}/api/otp/`, { });
+          console.log(response);
+          if(response.status == 200) {
+            console.log("log in  successfully");
+            router.push(`/${localeActive}/home`);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
     }
+
   };
 
   return (
@@ -100,7 +129,17 @@ export default function Login() {
                   } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
                 />
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+
               </div>
+
+              
+              <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
+          >
+            continue
+          </button>
+
             </>
           ) : (
             <>
@@ -121,7 +160,7 @@ export default function Login() {
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
 
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
                   OTP
                 </label>
@@ -136,16 +175,25 @@ export default function Login() {
                   } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
                 />
                 {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-              </div>
+
+              </div> */}
+              
+              <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
+          >
+           Verify OTP
+          </button>
+
             </>
           )}
 
-          <button
+          {/* <button
             type="submit"
             className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
           >
             {isOtpLogin ? 'Verify OTP' : 'Continue'}
-          </button>
+          </button> */}
         </form>
 
         <p className="text-sm text-center text-gray-600 mt-4">
