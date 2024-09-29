@@ -1,4 +1,3 @@
-
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
@@ -6,7 +5,7 @@ const withNextIntl = createNextIntlPlugin();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com'], // Add Cloudinary or any other external image domains here
+    domains: ['res.cloudinary.com', 'example.com'],  // Add all allowed external image domains here
   },
 };
 
