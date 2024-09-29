@@ -65,7 +65,12 @@ export default function Login() {
           console.log(response);
           if(response.status == 200) {
             console.log("OTP sent successfully");
-            router.push(`/${localeActive}/register/otpVerification`);
+            // Construct the URL with query parameters
+          const queryParams = new URLSearchParams({ from: "userLogin" });
+          const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
+
+          // Push the constructed URL
+          router.push(url);
           }
         } catch (error) {
           console.error(error);
@@ -73,7 +78,8 @@ export default function Login() {
       }else{
         console.log("Email login",isOtpLogin);
         try {
-          const response = await axios.post(`/${localeActive}/api/otp/`, { });
+          console.log("checking login",email,password);
+          const response = await axios.post(`/${localeActive}/api/login/user`, {email: email, password: password});
           console.log(response);
           if(response.status == 200) {
             console.log("log in  successfully");

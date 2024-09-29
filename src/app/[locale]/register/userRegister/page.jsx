@@ -80,14 +80,17 @@ export default function Register() {
         const response = await axios.post(`/${localeActive}/api/otp/createOTP`, { phoneNumber: formData.phoneNumber });
         if(response.status == 200) {
           console.log("stored data in ls")
-        localStorage.setItem('formData', JSON.stringify(formData));
-
+          localStorage.setItem('formData', JSON.stringify(formData));
         }
 
         // setMessage(response.data.message);
         // setStep(2);
         // `/${localeActive}/register/userRegister`
-        router.push(`/${localeActive}/register/otpVerification`);
+        const queryParams = new URLSearchParams({ from: "userRegister" });
+        const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
+
+        // Push the constructed URL
+        router.push(url);      
       } catch (error) {
         console.error("Error in userRegister page:", error);
         if (error.response) {
