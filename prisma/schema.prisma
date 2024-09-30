@@ -47,3 +47,6 @@ model Product {
   weight            Int                                      // Changed to INT
 }
 
+
+
+model farmer{}
