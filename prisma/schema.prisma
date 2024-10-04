@@ -11,10 +11,11 @@ model User {
   id           Int    @id @default(autoincrement())
   firstName    String
   lastName     String
-  phoneNumber  String
+  phoneNumber  String @unique
   email        String @unique
   password     String
   createdAt    DateTime @default(now())
+  farmer       Farmer?  @relation(fields: [phoneNumber], references: [phoneNumber])
 }
 
 
@@ -47,6 +48,29 @@ model Product {
   weight            Int                                      // Changed to INT
 }
 
+enum usertype{
+   User 
+   Admin 
+   Farmer
+}
 
 
-model farmer{}
+enum land_type{
+  Terrace
+  Acre
+}
+
+
+model Farmer {
+  id           Int    @id @default(autoincrement())
+  firstName    String @db.VarChar(255) 
+  lastName     String @db.VarChar(255) 
+  phoneNumber  String @unique
+  email        String @unique
+  Aadhar_number BigInt 
+  farmers_card String @db.VarChar(255) 
+  land         land_type 
+  createdAt    DateTime @default(now())
+  user           User?    @relation(fields: [phoneNumber], references: [phoneNumber], onDelete: Cascade)
+
+}
