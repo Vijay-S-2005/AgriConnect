@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const prisma = new PrismaClient();
 
-export default NextAuth({
+export const authOptions = {
   providers: [
     // Existing Credentials-based login
     CredentialsProvider({
@@ -84,4 +84,7 @@ export default NextAuth({
   //   signIn: "//${locale}/login",
   // },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

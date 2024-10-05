@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginDialog({ open, onClose }) {
   const localeActive = useLocale();
@@ -62,9 +63,14 @@ export default function LoginDialog({ open, onClose }) {
       setErrors(validationErrors);
     } else {
       try {
-        const response = await axios.post(`/api/login/user`, { email, password });
+        // const response = await axios.post(`/api/login/user`, { email, password });
         // const response = await axios.post(`/${localeActive}/api/login/user`, { email, password });
-        if (response.status === 200) {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        });
+        if (!result.error) {
           router.push(`/${localeActive}`);
           console.log("Login successful");
         }
