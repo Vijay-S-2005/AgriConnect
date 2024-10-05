@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -20,9 +21,17 @@ const Slider = () => {
         loop={true}
         autoplay={{ delay: 2500, disableOnInteraction: false }}
         pagination={{ clickable: true }}
-        navigation={true}
+        // navigation={true}
         modules={[Autoplay, Pagination, Navigation]} // Include Autoplay module here
       >
+        <SwiperSlide>
+          <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+            {/* Direct path from public folder */}
+            <source src="/assets/video/agri_video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </SwiperSlide>
+
         <SwiperSlide>
           <Image src={Assets.slider_img1} alt="Slide 1" layout="fill" objectFit="cover" />
         </SwiperSlide>

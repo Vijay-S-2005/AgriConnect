@@ -13,6 +13,9 @@ const OTPVerification = () => {
   const [message, setMessage] = useState('');
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
+  const type = searchParams.get('type');
+  // console.log("from",from);
+  // console.log("type",type);
 
 //   useEffect(() => {
 //     if (from) {
@@ -33,6 +36,10 @@ const OTPVerification = () => {
     // Retrieve and parse formData from local storage
     const formDataString = localStorage.getItem('formData');
     const formData = formDataString ? JSON.parse(formDataString) : null;
+    const dataToSend = {
+      formData: formData,  // Your form data object
+      type: type           // Your string type
+    };
 
     if (!formData) {
       setMessage('No form data found. Please try again.');
@@ -41,13 +48,13 @@ const OTPVerification = () => {
 
     try {
       // Verify OTP
-      const otpResponse = await axios.post(`/${localeActive}/api/otp/verifyOTP`, { phoneNumber: formData.phoneNumber, otp });
+      const otpResponse = await axios.post(`/api/otp/verifyOTP`, { phoneNumber: formData.phoneNumber, otp });
       
       if (otpResponse.status === 200) {
         try {
           // Register user
           if(from=="userRegister"){
-          const registerResponse = await axios.post(`/${localeActive}/api/register`, formData);
+          const registerResponse = await axios.post(`/api/register`, dataToSend);
           
           if (registerResponse.status === 201) {
             localStorage.removeItem('formData'); 
@@ -58,7 +65,7 @@ const OTPVerification = () => {
           }
         }
         else if(from=="userLogin"){//login
-            console.log("login ulla vanthutan");
+            // console.log("login ulla vanthutan");
         //   const loginResponse = await axios.post(`/${localeActive}/api/login`, formData);
         //   if (loginResponse.status === 200) {
             // localStorage.setItem('token', loginResponse.data.token);

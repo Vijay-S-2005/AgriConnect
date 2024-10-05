@@ -1,19 +1,30 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
+import { signIn, getSession } from "next-auth/react";
+// import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLocale } from "next-intl";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
-export default function Login() {
+export default function LoginDialog({ open, onClose }) {
   const localeActive = useLocale();
   const [isOtpLogin, setIsOtpLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
   const [errors, setErrors] = useState({});
+  const [verifyEnabled, setVerifyEnabled] = useState(false);
   const router = useRouter();
+  // const { data: session, status } = useSession();
+
   const toggleOtpLogin = () => {
     setIsOtpLogin(!isOtpLogin);
     setErrors({});
@@ -21,12 +32,13 @@ export default function Login() {
     setPassword('');
     setPhone('');
     setOtp('');
+    setOtpSent(false);
+    setVerifyEnabled(false);
   };
 
   const validateForm = () => {
     const newErrors = {};
     if (!isOtpLogin) {
-      // Email/password login validation
       if (!email) {
         newErrors.email = 'Email is required';
       } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -36,71 +48,98 @@ export default function Login() {
         newErrors.password = 'Password is required';
       }
     } else {
-      // OTP login validation
       if (!phone) {
         newErrors.phone = 'Phone number is required';
       } else if (!/^\d{10}$/.test(phone)) {
         newErrors.phone = 'Invalid phone number';
       }
-      // if (!otp) {
-      //   newErrors.otp = 'OTP is required';
-      // }
     }
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
+
+  // Email and Password Login
+  const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
-   
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      // Proceed with form submission (API call or further processing)
-      console.log('Form submitted', { email, password, phone, otp });
-      if(isOtpLogin){
-        console.log("OTP login",isOtpLogin);
-        try {
-          const response = await axios.post(`/${localeActive}/api/otp/createOTP`, { phoneNumber: '+91'+phone });
-          console.log(response);
-          if(response.status == 200) {
-            console.log("OTP sent successfully");
-            // Construct the URL with query parameters
-          const queryParams = new URLSearchParams({ from: "userLogin" });
-          const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
-
-          // Push the constructed URL
-          router.push(url);
+      try {
+        const response = await signIn('credentials', {
+          redirect: false, // prevents automatic redirection after login
+          email: email,
+          password: password,
+        });
+  
+        if (response.ok) {
+          // After successful login, retrieve the session object
+          const session = await getSession(); // Use getSession to access user data
+          if (session) {
+            console.log("role", session.user.role);
+            console.log("done da bhai");
+            // router.push(`/${localeActive}`); // Uncomment if you want to redirect
           }
-        } catch (error) {
-          console.error(error);
+        } else {
+          setErrors({ form: 'Invalid email or password' });
         }
-      }else{
-        console.log("Email login",isOtpLogin);
-        try {
-          console.log("checking login",email,password);
-          const response = await axios.post(`/${localeActive}/api/login/user`, {email: email, password: password});
-          console.log(response);
-          if(response.status == 200) {
-            console.log("log in  successfully");
-            router.push(`/${localeActive}/home`);
-          }
-        } catch (error) {
-          console.error(error);
-        }
+      } catch (error) {
+        console.error(error);
       }
     }
+  };
+  
+  
+  
 
+  const handleSendOtp = async () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+    } else {
+      try {
+        const response = await axios.post(`/api/otp/createOTP`, { phoneNumber: '+91' + phone });
+        if (response.status === 200) {
+          setOtpSent(true);
+          setErrors({});
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (otp) {
+      try {
+        const response = await axios.post(`/api/otp/verifyOTP`, { phoneNumber: '+91' + phone, otp });
+        if (response.status === 200) {
+          // Ensure this runs before the redirect
+          // router.push(`/${localeActive}`);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+  
+
+  const handleOtpInputChange = (e) => {
+    const value = e.target.value;
+    setOtp(value);
+    if (value.length === 6) {
+      setVerifyEnabled(true);
+    } else {
+      setVerifyEnabled(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-semibold text-center text-gray-700 mb-6">
-          {isOtpLogin ? 'User Login with OTP' : 'User Login'}
-        </h1>
-
-        <form onSubmit={handleSubmit}>
+    <Dialog open={open} maxWidth="xs" fullWidth>
+      <DialogTitle>{isOtpLogin ? 'User Login with OTP' : 'User Login'}</DialogTitle>
+      <DialogContent>
+        <form onSubmit={isOtpLogin ? handleVerifyOtp : handleEmailPasswordLogin}>
           {!isOtpLogin ? (
             <>
               <div className="mb-4">
@@ -113,9 +152,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className={`mt-1 w-full px-4 py-2 border ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
+                  className={`mt-1 w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm`}
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
@@ -130,97 +167,96 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className={`mt-1 w-full px-4 py-2 border ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
+                  className={`mt-1 w-full px-4 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm`}
                 />
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-
               </div>
 
-              
-              <button
-            type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
-          >
-            continue
-          </button>
-
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                style={{ marginTop: '16px' }}
+              >
+                Login
+              </Button>
             </>
           ) : (
             <>
-              <div className="mb-6">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-600">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter your phone number"
-                  className={`mt-1 w-full px-4 py-2 border ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
-                />
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              <div className="mb-4 flex">
+                <div className="w-full">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-600">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Enter your phone number"
+                    className={`mt-1 px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm w-full`}
+                  />
+                </div>
+                <div className="ml-2 mt-6">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSendOtp}
+                    disabled={!phone || !/^\d{10}$/.test(phone)}
+                  >
+                    Send OTP
+                  </Button>
+                </div>
               </div>
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
 
-              {/* <div className="mb-6">
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
-                  OTP
-                </label>
-                <input
-                  type="text"
-                  id="otp"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="Enter the OTP"
-                  className={`mt-1 w-full px-4 py-2 border ${
-                    errors.otp ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent`}
-                />
-                {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-
-              </div> */}
-              
-              <button
-            type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
-          >
-           Verify OTP
-          </button>
-
+              {otpSent && (
+                <div className="mb-4">
+                  <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
+                    Enter OTP
+                  </label>
+                  <input
+                    type="text"
+                    id="otp"
+                    value={otp}
+                    onChange={handleOtpInputChange}
+                    placeholder="Enter OTP"
+                    className={`mt-1 px-4 py-2 border ${errors.otp ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm w-full`}
+                  />
+                </div>
+              )}
             </>
           )}
 
-          {/* <button
-            type="submit"
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
-          >
-            {isOtpLogin ? 'Verify OTP' : 'Continue'}
-          </button> */}
+          {otpSent && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              style={{ marginTop: '16px' }}
+              disabled={!verifyEnabled}
+            >
+              Verify OTP
+            </Button>
+          )}
         </form>
-
         <p className="text-sm text-center text-gray-600 mt-4">
           {isOtpLogin ? (
             <a href="#" onClick={toggleOtpLogin} className="text-green-600 hover:underline">
               Back to Password Login
             </a>
           ) : (
-            <>
-              <span>Don't have an account? </span>
-              <Link href={`/${localeActive}/register/userRegister`} className="text-green-600 hover:underline">
-                Sign up
-              </Link>
-              <br />
-              <a href="#" onClick={toggleOtpLogin} className="text-green-600 hover:underline mt-2 block">
-                Sign in with OTP
-              </a>
-            </>
+            <a href="#" onClick={toggleOtpLogin} className="text-green-600 hover:underline mt-2 block">
+              Sign in with OTP
+            </a>
           )}
         </p>
-      </div>
-    </div>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
   );
 }

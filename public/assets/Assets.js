@@ -12,6 +12,8 @@ import Apple from './image/Apple.jpg';
 import Onions from './image/Onions.jpg';
 import sideBar from './image/sideBar.png';
 
+const video = './video/agri_video.mp4';
+
 
 export const Assets = {
     Facebook,
@@ -27,5 +29,6 @@ export const Assets = {
     Apple,
     Onions,
     sideBar,
+    video,
 };
 

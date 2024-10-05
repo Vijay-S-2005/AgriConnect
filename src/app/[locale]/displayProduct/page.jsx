@@ -14,7 +14,7 @@ export default function DisplayProductPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.post(`/${localeActive}/api/fetchProductDetail`, {
+        const response = await axios.post(`/api/fetchProductDetail`, {
           columns: columnsToFetch,
         });
         setData(response.data); 

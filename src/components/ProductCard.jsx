@@ -27,6 +27,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) { // A
           objectFit="cover" // Ensures the image maintains aspect ratio and covers the container
         />
       </div>
+      <div className=''>
       <div className="flex justify-between p-4 font-roboto">
         <div className="flex flex-col">
           <h3 className="font-extrabold text-lg">{productName}</h3>
@@ -53,6 +54,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) { // A
         <Link href={`/product/${productId}`} passHref> {/* Dynamic route for "See More" */}
           <a className="text-blue-600 hover:underline">See More</a>
         </Link>
+      </div>
       </div>
       <ToastContainer />
     </div>
