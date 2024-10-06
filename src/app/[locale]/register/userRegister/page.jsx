@@ -83,7 +83,7 @@ export default function RegisterDialog({ Open, onClose }) {
             from: 'userRegister',
             type: formData.type,
           });
-          const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
+          const url = `/register/otpVerification?${queryParams.toString()}`;
           router.push(url);
         }
       } catch (error) {
