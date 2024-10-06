@@ -2,10 +2,14 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import {  useLocale } from "next-intl";
 import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
+import { useSession } from "next-auth/react";
 import 'react-pro-sidebar/dist/css/styles.css'; 
 import '../styles/globals.css'; 
 
 const SideBar = ({ sidebarOpen, toggleSideBar }) => {
+  const { data: session, status } = useSession();
+  const username = session?.user?.firstName || "Guest";
+
   const localeActive = useLocale();
 
     const router = useRouter();
@@ -35,7 +39,7 @@ const SideBar = ({ sidebarOpen, toggleSideBar }) => {
             <Menu iconShape="square">
               <MenuItem>
                 <div className="menu-item" style={{ fontWeight: 'bold', fontSize: '18px', textAlign: 'center' }}>
-                  Hello User
+                  Hello {username}
                 </div>
               </MenuItem>
 

@@ -11,6 +11,7 @@ import SideBar from './SideBar';
 import UserLoginDialog from '../app/[locale]/Login/userLogin/page'; 
 import FarmerLoginDialog from '../app/[locale]/Login/farmerLogin/page'; 
 import RegisterDialog from '@/app/[locale]/register/userRegister/page';
+import { useSession } from "next-auth/react";
 
 // import 
 
@@ -22,7 +23,9 @@ const Header = () => {
   const [userLoginOpen, setUserLoginOpen] = React.useState(false);
   const [farmerLoginOpen, setFarmerLoginOpen] = React.useState(false);
   const [registerOpen, setRegisterOpen] = React.useState(false);
-
+  const { data: session, status } = useSession();
+  const username = session?.user?.firstName || undefined;
+  
   // State for Translate Menu (now Profile)
   const [profileAnchorEl, setProfileAnchorEl] = React.useState(null);
   const profileMenuOpen = Boolean(profileAnchorEl);
@@ -39,7 +42,10 @@ const Header = () => {
 
   // Handlers for Profile Menu (previously Translate)
   const handleProfileClick = (event) => {
-    setProfileAnchorEl(event.currentTarget);
+    if(!username)
+      setProfileAnchorEl(event.currentTarget);
+    else
+      setRegisterOpen(true)
   };
 
   const handleProfileClose = () => {
@@ -125,7 +131,7 @@ const Header = () => {
         {/* Profile section (previously Translation) */}
         <div className="flex items-center cursor-pointer">
           <Image
-            src={Assets.profile}
+            src={session?.user ? Assets.profile : Assets.login}
             alt="Profile"
             width={24}
             height={24}
@@ -140,7 +146,7 @@ const Header = () => {
             className="text-white normal-case"
           >
             <p className="ml-2 hover:underline transition duration-300">
-              {t("profile")}
+              {session?.user ? t("profile") : t("login")}
             </p>
           </Button>
 

@@ -59,7 +59,7 @@ const OTPVerification = () => {
           if (registerResponse.status === 201) {
             localStorage.removeItem('formData'); 
             alert("User created successfully");
-            router.push(`/${localeActive}/Login/userLogin`);
+            router.push(`/${localeActive}`);
           } else {
             setMessage("User registration failed");
           }

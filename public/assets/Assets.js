@@ -1,6 +1,7 @@
 import Facebook from './image/Facebook.png';
 import Instagram from './image/Instagram.png';
 import profile from './image/profile.png';
+import login from "./image/login.jpeg"
 import Agriconnect_logo from './image/Agriconnect_logo.png';
 import languageIcon from './image/languageIcon.png';
 import slider_img1 from './image/slider_img1.jpg';
@@ -30,5 +31,6 @@ export const Assets = {
     Onions,
     sideBar,
     video,
+    login
 };
 

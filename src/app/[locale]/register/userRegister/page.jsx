@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; // Correct import for app directory
 import { useLocale } from 'next-intl';
@@ -8,11 +8,15 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import { useSession, signOut } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 
 export default function RegisterDialog({ Open, onClose }) {
   const localeActive = useLocale();
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const { data: session, status } = useSession();
+
+  let initialValue = session?.user ? session.user : {
     firstName: '',
     lastName: '',
     phoneNumber: '',
@@ -20,7 +24,21 @@ export default function RegisterDialog({ Open, onClose }) {
     type: '',
     password: '',
     confirmPassword: '',
-  });
+  }
+  const [formData, setFormData] = useState(initialValue);
+  console.log(session);
+
+  const trimCountryCode = (phoneNumber) => {
+    const countryCodePattern = /^\+\d{1,2}/;
+    return phoneNumber?.replace(countryCodePattern, '');
+  };
+
+  useEffect(() =>{
+    if(session?.user) {
+      setFormData({...session.user, phoneNumber: trimCountryCode(session?.user?.phoneNumber), id: session?.user?.id});
+    }
+  }, [session])
+
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -42,20 +60,24 @@ export default function RegisterDialog({ Open, onClose }) {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email address';
     }
-    if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
-    }
-    if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = 'Confirm password is required';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    if (!formData.type) {
-      newErrors.type = 'Type is required';
-    }
 
+    if(!session?.user) {
+      if (!formData.password.trim()) {
+        newErrors.password = 'Password is required';
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters long';
+      }
+    
+      if (!formData.confirmPassword.trim() && !session?.user) {
+        newErrors.confirmPassword = 'Confirm password is required';
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+    
+      if (!formData.type) {
+        newErrors.type = 'Type is required';
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,24 +89,37 @@ export default function RegisterDialog({ Open, onClose }) {
     });
   };
 
+  const handleLogout = (e) =>{
+    signOut({ redirect: false })
+    onClose()
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
       formData.phoneNumber = "+91" + formData.phoneNumber;
-
       try {
-        const response = await axios.post(
-          `/api/otp/createOTP`,
-          { phoneNumber: formData.phoneNumber }
-        );
-        if (response.status === 200) {
-          localStorage.setItem('formData', JSON.stringify(formData));
-          const queryParams = new URLSearchParams({
-            from: 'userRegister',
-            type: formData.type,
-          });
-          const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
-          router.push(url);
+        if(session?.user) {
+         // const token = await getToken({ req: null });
+          console.log("profile update page", session);
+          const response = await axios.post(`/api/register`, {type: "profile", formData});
+          if (response.status === 200) {
+            router.push(`/${localeActive}`);
+          }
+        } else {
+          const response = await axios.post(
+            `/api/otp/createOTP`,
+            { phoneNumber: formData.phoneNumber }
+          );
+          if (response.status === 200) {
+            localStorage.setItem('formData', JSON.stringify(formData));
+            const queryParams = new URLSearchParams({
+              from: 'userRegister',
+              type: formData.type,
+            });
+            const url = `/${localeActive}/register/otpVerification?${queryParams.toString()}`;
+            router.push(url);
+          }
         }
       } catch (error) {
         console.error('Error in userRegister page:', error);
@@ -95,7 +130,7 @@ export default function RegisterDialog({ Open, onClose }) {
   return (
     <Dialog open={Open}  maxWidth="xs" fullWidth>
       <DialogContent className="p-6">
-        <h2 className="text-2xl font-semibold text-center mb-4">User Register</h2>
+        <h2 className="text-2xl font-semibold text-center mb-4">{!session?.user ? "User Register" : "Profile"} </h2>
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-4">
             <label htmlFor="firstName" className="block text-sm font-medium text-gray-600">
@@ -178,7 +213,8 @@ export default function RegisterDialog({ Open, onClose }) {
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
             )}
           </div>
-
+          {!session?.user && 
+          <>
           <div className="mb-4">
             <span className="block text-sm font-medium text-gray-600">Type</span>
             <div className="mt-1 flex space-x-4">
@@ -245,19 +281,21 @@ export default function RegisterDialog({ Open, onClose }) {
               <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
             )}
           </div>
-
+          </>
+          }
           <div className="flex justify-between">
             <button
               type="submit"
               className="bg-green-600 text-white py-2 px-4 rounded-lg shadow hover:bg-green-700 transition duration-300"
             >
-              Send OTP
+              {!session?.user ? "Send OTP" : "Submit" }
             </button>
           </div>
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
+        {session?.user && <Button onClick={handleLogout}>Log Out</Button>}
       </DialogActions>
     </Dialog>
   );
