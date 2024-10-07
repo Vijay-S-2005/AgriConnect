@@ -63,21 +63,20 @@ export default function LoginDialog({ open, onClose }) {
       setErrors(validationErrors);
     } else {
       try {
-        // const response = await axios.post(`/api/login/user`, { email, password });
-        // const response = await axios.post(`/${localeActive}/api/login/user`, { email, password });
         const result = await signIn("credentials", {
           email,
           password,
+          type: "farmer",
           redirect: false,
         });
         if (!result.error) {
           router.push(`/${localeActive}`);
           console.log("Login successful");
+        } else {
+          setErrors({...errors, password: result.error})
         }
       } catch (error) {
         console.error(error);
-
-        // Optionally handle login failure
       }
     }
   };

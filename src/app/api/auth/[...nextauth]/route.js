@@ -1,26 +1,20 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from '@prisma/client';
 import bcrypt from "bcrypt";
-import axios from 'axios';
-// import authOptions from '@/lib/authOptions';
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 
 const prisma = new PrismaClient();
 
 export const authOptions = {
   providers: [
     // Existing Credentials-based login
-    CredentialsProvider({
+    Credentials({
       name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "email@example.com" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        console.log("credentials", credentials);
+      async authorize(credentials) {        
+        console.log("inside authorize (login) credentials", credentials);
         // Find user by email
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email , type: credentials.type}
         });
 
         // Validate user and password
@@ -29,7 +23,6 @@ export const authOptions = {
         }
 
         // Return user details (session will store this)
-        console.log("mudichi vitanga ponnga");
         return { id: user.id, email: user.email, role: user.role, name: `${user.firstName} ${user.lastName}` };
       },
     }),
@@ -66,17 +59,41 @@ export const authOptions = {
 
   // JWT and session logic
   session: {
-    jwt: true,
+    strategy: "jwt",
+    maxAge: 60 * 60, // 1 hour session duration in seconds
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
+      let id = user?.id || token?.id
+      // Use the user ID from the session to fetch full user data
+      const fullUser = await prisma.user.findUnique({
+        where: {id}
+      });
+
+      if (fullUser) {
+        token.id = fullUser.id
+        token.email = fullUser.email; // Store email in the session
+        token.firstName = fullUser.firstName; // Store first name in the session
+        token.lastName = fullUser.lastName; // Store last name in the session
+        token.type = fullUser.type; // Store type in the session
+        token.phoneNumber = fullUser.phoneNumber; // Store phone number in the session
       }
-      return token;
+
+      return token; // Return updated session
     },
+
     async session({ session, token }) {
-      session.user.role = token.role;
+
+        console.log("In session", session)
+      // Populate session with token data
+      session.user.id = token.id;
+      session.user.email = token.email;
+      session.user.name = token.name;
+      session.user.type = token.type;
+      session.user.firstName = token.firstName; // Add this
+      session.user.lastName = token.lastName;   // Add this
+      session.user.phoneNumber = token.phoneNumber; // Optional
+
       return session;
     },
   },
@@ -86,5 +103,5 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+const handlers = NextAuth(authOptions);
+export {handlers as GET, handlers as POST}

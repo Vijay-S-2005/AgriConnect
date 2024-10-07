@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { getMessages, getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import "../../styles/globals.css";
+import ClientSessionProvider from "@/components/ClientSessionProvider";
 
 export async function generateMetadata({ params: { locale } }) {
   const t = await getTranslations({ locale, namespace: "Index" }); // Get translation for the correct locale
@@ -19,11 +20,13 @@ export default async function LocaleLayout({ children, params: { locale } }) {
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider messages={messages}>
-          {/* <Header /> */}
-          {children}
-          {/* <Footer /> */}
-        </NextIntlClientProvider>
+        <ClientSessionProvider>
+          <NextIntlClientProvider messages={messages}>
+            {/* <Header /> */}
+            {children}
+            {/* <Footer /> */}
+          </NextIntlClientProvider>
+        </ClientSessionProvider>
       </body>
     </html>
   );

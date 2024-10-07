@@ -73,11 +73,11 @@ export async function POST(req) {
     console.log("OTP stored in Redis");
 
     try {
-      await client.messages.create({
-        body: `Your OTP code is ${otp}`,
-        from: twilioPhoneNumber,
-        to: phoneNumber
-      });
+      // await client.messages.create({
+      //   body: `Your OTP code is ${otp}`,
+      //   from: twilioPhoneNumber,
+      //   to: phoneNumber
+      // });
 
       console.log(`OTP ${otp} sent to ${phoneNumber}`);
       return new Response(JSON.stringify({ message: 'OTP sent successfully!' }), { status: 200 });

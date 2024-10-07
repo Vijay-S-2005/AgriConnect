@@ -66,22 +66,17 @@ export default function LoginDialog({ open, onClose }) {
       setErrors(validationErrors);
     } else {
       try {
-        const response = await signIn('credentials', {
-          redirect: false, // prevents automatic redirection after login
-          email: email,
-          password: password,
+        const result = await signIn("credentials", {
+          email,
+          password,
+          type: "user",
+          redirect: false,
         });
-  
-        if (response.ok) {
-          // After successful login, retrieve the session object
-          const session = await getSession(); // Use getSession to access user data
-          if (session) {
-            console.log("role", session.user.role);
-            console.log("done da bhai");
-            // router.push(`/${localeActive}`); // Uncomment if you want to redirect
-          }
+        if (!result.error) {
+          router.push(`/${localeActive}`);
+          console.log("Login successful");
         } else {
-          setErrors({ form: 'Invalid email or password' });
+          setErrors({...errors, password: result.error})
         }
       } catch (error) {
         console.error(error);
