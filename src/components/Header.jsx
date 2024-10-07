@@ -94,14 +94,14 @@ const Header = () => {
 
   return (
     <header className="flex justify-between items-center p-4 bg-green-600 shadow-md relative">
-      <button
+      {/* <button
         onClick={toggleSideBar}
         className="absolute left-0 ml-4 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 z-50"
       >
         <Image src={Assets.sideBar} alt="Sidebar" width={25} height={25} />
       </button>
-      <SideBar sidebarOpen={sidebarOpen} toggleSideBar={toggleSideBar} />
-
+      <SideBar sidebarOpen={sidebarOpen} toggleSideBar={toggleSideBar} /> */}
+{/* logo */}
       <div className="flex items-center space-x-4">
         {/* Agriconnect Logo */}
         <Image
