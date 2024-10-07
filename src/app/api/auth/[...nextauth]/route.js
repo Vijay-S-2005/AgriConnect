@@ -10,15 +10,11 @@ export const authOptions = {
     // Existing Credentials-based login
     Credentials({
       name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "email@example.com" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        console.log("credentials", credentials);
+      async authorize(credentials) {        
+        console.log("inside authorize (login) credentials", credentials);
         // Find user by email
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email , type: credentials.type}
         });
 
         // Validate user and password
@@ -27,7 +23,6 @@ export const authOptions = {
         }
 
         // Return user details (session will store this)
-        console.log("mudichi vitanga ponnga");
         return { id: user.id, email: user.email, role: user.role, name: `${user.firstName} ${user.lastName}` };
       },
     }),
@@ -72,7 +67,7 @@ export const authOptions = {
       let id = user?.id || token?.id
       // Use the user ID from the session to fetch full user data
       const fullUser = await prisma.user.findUnique({
-        where: { id}
+        where: {id}
       });
 
       if (fullUser) {
