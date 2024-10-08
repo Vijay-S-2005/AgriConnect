@@ -11,6 +11,7 @@ import WhatsApp from './image/WhatsApp.png';
 import Apple from './image/Apple.jpg';
 import Onions from './image/Onions.jpg';
 import sideBar from './image/sideBar.png';
+import bin from './image/bin.png';
 
 const video = './video/agri_video.mp4';
 
@@ -30,5 +31,6 @@ export const Assets = {
     Onions,
     sideBar,
     video,
+    bin,
 };
 
