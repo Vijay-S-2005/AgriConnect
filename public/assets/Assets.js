@@ -12,6 +12,7 @@ import Apple from './image/Apple.jpg';
 import Onions from './image/Onions.jpg';
 import sideBar from './image/sideBar.png';
 import bin from './image/bin.png';
+import order_page from './image/order_page.png';
 
 const video = './video/agri_video.mp4';
 
@@ -32,5 +33,6 @@ export const Assets = {
     sideBar,
     video,
     bin,
+    order_page,
 };
 

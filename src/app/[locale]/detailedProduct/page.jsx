@@ -4,11 +4,10 @@ import { Assets } from '../../../../public/assets/Assets'; // Assuming you're im
 import ProductCard from '@/components/ProductCard';
 
 export default function DetailedProduct() {
-
     // Static Product Data
     const product = {
         title: 'Product',
-        description: 'Fresh Product from farm  Product from farm  Product from farm  Product from farm  Product from farm .',
+        description: 'Fresh Product from farm. Product from farm. Product from farm. Product from farm. Product from farm.',
         price: '$799.99',
         rating: 4.7,
         productType: 'Electronics',
@@ -25,21 +24,27 @@ export default function DetailedProduct() {
     ];
 
     return (
-        <div className="flex flex-col p-8 min-h-screen">
+        <div className="flex flex-col min-h-screen">
             {/* Main Product Section */}
-            <div className="flex flex-wrap h-full">
-                {/* Left Side - Full Display Image (Sticky) */}
-                <div className="w-full md:w-1/2 flex justify-center items-center sticky top-0 h-screen">
-                    <Image
-                        className="border-2 border-gray-300"
-                        src={product.image} // Static image source
-                        alt="Product Image"
-                        width={500}
-                        height={500}
-                        objectFit="contain"
-                    />
-                </div>
+        <div className="w-full p-0 m-0">
+            {/* Product Image at the Top */}
+        <Image
+            className="w-full p-0 m-0" 
+            src={Assets.order_page} 
+            alt="Product Image"
+            layout="responsive"
+            width={1080}
+            height={1920}
+            objectFit="cover"
+            />
+        </div>
 
+
+        <div className="flex flex-wrap h-full">
+            {/* Left Side - Full Display Image (Sticky) - Optional */}
+            <div className="w-full md:w-1/2 flex justify-center items-center sticky top-0 h-screen">
+                {/* This can be omitted if you want to keep only the image at the top */}
+                </div>
                 {/* Right Side - Product Details with Scrollable Content */}
                 <div className="w-full md:w-1/2 h-full overflow-y-scroll no-scrollbar p-8 border-2">
                     {/* Title and Description */}
@@ -47,7 +52,7 @@ export default function DetailedProduct() {
                     <p className="text-gray-700 mb-4">{product.description}</p>
 
                     {/* Price and Rating */}
-                    <div className="flex items-center mb-4">    
+                    <div className="flex items-center mb-4">
                         <span className="text-2xl font-semibold">{product.price}</span>
                         <span className="ml-4 text-yellow-500">
                             {'⭐'.repeat(Math.floor(product.rating))}{' '}
@@ -102,10 +107,10 @@ export default function DetailedProduct() {
                 {[...Array(4)].map((_, index) => (
                     <ProductCard
                         key={index}
-                        productName={"product.productName"}
-                        imageUrl={product.imageURL || Assets.Apple} // Fallback image
-                        price={"product.price"}
-                        weight={"product.weight"}
+                        productName={product.title} // Correctly reference the product title
+                        imageUrl={product.image} // Use the actual product image
+                        price={product.price} // Use the actual product price
+                        weight={"1kg"} // You might want to define weight or any other details
                     />
                 ))}
             </div>
