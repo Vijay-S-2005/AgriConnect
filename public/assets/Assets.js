@@ -29,7 +29,9 @@ import home09 from './image/home-assets-09.jpg';
 import home10 from './image/home-assets-10.jpg';
 import home11 from './image/home-assets-11.jpg';
 import home12 from './image/home-assets-12.png';
-import x from './image/x.png';
+import x from './image/x.png';import bin from './image/bin.png';
+import order_page from './image/order_page.png';
+
 const video = './video/agri_video.mp4';
 
 
@@ -48,6 +50,8 @@ export const Assets = {
     Onions,
     sideBar,
     video,
+    bin,
+    order_page,
     login,
     shopping,
  

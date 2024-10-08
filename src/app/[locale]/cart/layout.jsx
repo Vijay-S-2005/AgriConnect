@@ -1,25 +1,16 @@
-// src/app/layout.js
-// 'use client';
-// import '../styles/globals.css';
-
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Head from "next/head";
-export const metadata = {
-  title: 'Cart Page',
-  description: 'A simple cart page with static data',
-};
+// import { IntlProviderWrapper } from './[locale]';
 
-export default function RootLayout({ children }) {
+
+export default function CartLayout({ children }) {
   return (
+    <div className="flex flex-col min-h-screen">  
+      <Header />
     
-    <html lang="en">
-      <body>
-    <Header />
-        {children}
-    <Footer />
 
-        </body>
-    </html>
+      {children} {/* This will render the content of the Home page */}
+      <Footer />
+    </div>
   );
 }
