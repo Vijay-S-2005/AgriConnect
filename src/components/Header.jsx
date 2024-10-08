@@ -36,6 +36,12 @@ const Header = () => {
 
   const router = useRouter();
 
+
+  const handleFarmerLogin=()=>{
+    console.log("hit");
+    router.push(`/${localeActive}/farmer/home`);
+  }
+
   const toggleSideBar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -93,7 +99,7 @@ const Header = () => {
   const handleTaTranslateClose = () => handleTranslateClose("ta");
 
   return (
-    <header className="flex justify-between items-center p-4 bg-green-600 shadow-md relative">
+    <header className="flex justify-between items-center p-2 bg-green-600 shadow-md relative">
       {/* <button
         onClick={toggleSideBar}
         className="absolute left-0 ml-4 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 z-50"
@@ -108,19 +114,24 @@ const Header = () => {
           src={Assets.Agriconnect_logo}
           alt="Agriconnect Logo"
           width={120}
-          height={100}
+          height={50}
           className="border-2 border-gray-300"
         />
       </div>
 
+      <div className="flex items-center space-x-4">
+        <p>location</p>
+        
+      </div>
+
       <div className="w-full max-w-lg mx-4">
-        <div className="flex items-center bg-white rounded-full shadow-md overflow-hidden">
+        <div className="flex items-center bg-white rounded-xl shadow-md overflow-hidden">
           <input
             type="text"
             placeholder={t("searchPlaceholder")}
-            className="flex-1 px-4 py-2 text-gray-700 focus:outline-none"
+            className="flex-1 px-4 py-1 text-gray-700 focus:outline-none"
           />
-          <button className="bg-green-700 text-white px-4 py-2 rounded-full hover:bg-green-800 transition duration-300">
+          <button className="bg-green-700 text-white px-4 py-2 rounded-xl hover:bg-green-800 transition duration-300">
             {t("search")}
           </button>
         </div>
@@ -170,7 +181,7 @@ const Header = () => {
             </MenuItem>
 
             {/* Farmer */}
-            <MenuItem>
+            {/* <MenuItem>
               <div className="flex justify-between w-full">
                 
                 <div className="space-x-2">
@@ -178,12 +189,12 @@ const Header = () => {
                   <Button onClick={handleFarmerLoginOpen}>LOGIN</Button> | <Button onClick={handleRegisterOpen}>REGISTER</Button>
                 </div>
               </div>
-            </MenuItem>
+            </MenuItem> */}
 
             {/* Admin */}
             <MenuItem>
               <div className="flex justify-between w-full">
-              <div className="space-x-2">
+              <div className="space-x-12">
                 <span>Admin </span>
                 <Button onClick={handleUserLoginOpen}>LOGIN</Button>
               </div>
@@ -193,7 +204,7 @@ const Header = () => {
         </div>
 
         {/* Translation section (previously Profile) */}
-        <div className="flex items-center cursor-pointer">
+        <div className="flex items-center cursor-pointer px-4">
           <Image
             src={Assets.languageIcon}
             alt="Language Icon"
@@ -228,7 +239,22 @@ const Header = () => {
           </Menu>
         </div>
 
-        <div className="flex items-center cursor-pointer">
+
+        <div className="flex items-center cursor-pointer px-4">
+          <Image
+            src={Assets.shopping}
+            onClick={handleFarmerLogin}
+            alt="shoping"
+            width={24}
+            height={24}
+            className="hover:opacity-80 transition duration-300"
+          />
+          <p className="ml-2 hover:underline transition duration-300" onClick={handleFarmerLogin}>
+            Become a Farmer
+          </p>
+        </div>
+
+        <div className="flex items-center cursor-pointer px-4">
           <Image
             src={Assets.Cart}
             alt="Cart"
@@ -237,7 +263,7 @@ const Header = () => {
             className="hover:opacity-80 transition duration-300"
           />
           <p className="ml-2 hover:underline transition duration-300">
-          {t("cart")}
+            {t("cart")}
           </p>
         </div>
       </div>

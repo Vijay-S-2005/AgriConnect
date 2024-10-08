@@ -70,7 +70,7 @@ export default function LoginDialog({ open, onClose }) {
           redirect: false,
         });
         if (!result.error) {
-          router.push(`/${localeActive}`);
+          router.push(`/${localeActive}/farmer/dashboard`);
           console.log("Login successful");
         } else {
           setErrors({...errors, password: result.error})
@@ -104,7 +104,7 @@ export default function LoginDialog({ open, onClose }) {
       try {
         const response = await axios.post(`/api/otp/verifyOTP`, { phoneNumber: '+91' + phone, otp });
         if (response.status === 200) {
-          router.push(`/${localeActive}`);
+          router.push(`/${localeActive}/farmer/dashboard`);
         }
       } catch (error) {
         console.error(error);
