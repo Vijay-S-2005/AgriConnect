@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-
-=======
 "use client";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
->>>>>>> 0816d513a96de3d7b029165e75dff548d1da8389
 
 export default function Navbar() {
   const router = useRouter();

@@ -146,35 +146,21 @@ export default function CartTable() {
                   </button>
                   <div className="flex items-center gap-2">
                     {" "}
-                    {/* Center-align buttons */}
-                    <button
-                      className="px-2 py-1 bg-red-500 text-white rounded"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      <Image
-                        src={Assets.bin}
-                        alt="Delete"
-                        className="w-5 h-6"
-                      />
-                    </button>
-<<<<<<< HEAD
-                    <span className="px-4 py-1">{item.quantity || 1}</span>
-                    <button
-                      className="px-4 py-1 bg-green-500 text-white rounded"
-                      onClick={() => increaseQuantity(item.id)}
-                    >
-                      +
-                    </button>
-                    <div className="flex items-center gap-2"> {/* Center-align buttons */}
+
+                    <div className="flex items-center gap-2">
+                      {" "}
+                      {/* Center-align buttons */}
                       <button
                         className="px-2 py-1 bg-white-500 text-white rounded"
                         onClick={() => removeItem(item.id)}
                       >
-                        <Image src={Assets.bin} alt="Delete" className="w-5 h-6" />
+                        <Image
+                          src={Assets.bin}
+                          alt="Delete"
+                          className="w-5 h-6"
+                        />
                       </button>
                     </div>
-=======
->>>>>>> 0816d513a96de3d7b029165e75dff548d1da8389
                   </div>
                 </div>
               </td>
