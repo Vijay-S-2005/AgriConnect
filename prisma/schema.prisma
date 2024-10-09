@@ -22,7 +22,7 @@ model User {
   password     String    @db.VarChar(255)
   type         usertype
   createdAt    DateTime  @default(now())
-  
+
   // Relations with NextAuth models
   accounts     Account[]       // Relation with Account for OAuth providers
   sessions     Session[]       // Relation with Session for session management
@@ -89,13 +89,3 @@ model VerificationToken {
   expires      DateTime
 }
 
-
-model cart {
-  cartId
-  userId Int
-  productId
-  quantity
-  
-
-
-}
