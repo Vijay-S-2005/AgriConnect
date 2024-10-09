@@ -88,3 +88,14 @@ model VerificationToken {
   token        String   @unique
   expires      DateTime
 }
+
+
+model cart {
+  cartId
+  userId Int
+  productId
+  quantity
+  
+
+
+}

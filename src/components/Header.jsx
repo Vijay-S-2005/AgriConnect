@@ -1,19 +1,17 @@
-'use client';
-import * as React from 'react';
-import Image from 'next/image';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import { Assets } from '../../public/assets/Assets';
-import { useRouter, usePathname } from 'next/navigation';
+"use client";
+import * as React from "react";
+import Image from "next/image";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { Assets } from "../../public/assets/Assets";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import SideBar from './SideBar';
-import UserLoginDialog from '../app/[locale]/Login/userLogin/page'; 
-import FarmerLoginDialog from '../app/[locale]/Login/farmerLogin/page'; 
-import RegisterDialog from '@/app/[locale]/register/userRegister/page';
+import UserLoginDialog from "../app/[locale]/Login/userLogin/page";
+import FarmerLoginDialog from "../app/[locale]/Login/farmerLogin/page";
+import RegisterDialog from "@/app/[locale]/register/userRegister/page";
 import { useSession } from "next-auth/react";
 
-// import 
 
 const Header = () => {
   const t = useTranslations("Header");
@@ -25,7 +23,7 @@ const Header = () => {
   const [registerOpen, setRegisterOpen] = React.useState(false);
   const { data: session, status } = useSession();
   const username = session?.user?.firstName || undefined;
-  
+
   // State for Translate Menu (now Profile)
   const [profileAnchorEl, setProfileAnchorEl] = React.useState(null);
   const profileMenuOpen = Boolean(profileAnchorEl);
@@ -36,11 +34,14 @@ const Header = () => {
 
   const router = useRouter();
 
+  const handleCart = () => {
+    router.push(`/${localeActive}/cart`);
+  };
 
-  const handleFarmerLogin=()=>{
+  const handleFarmerLogin = () => {
     console.log("hit");
     router.push(`/${localeActive}/farmer/home`);
-  }
+  };
 
   const toggleSideBar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -48,16 +49,14 @@ const Header = () => {
 
   // Handlers for Profile Menu (previously Translate)
   const handleProfileClick = (event) => {
-    if(!username)
-      setProfileAnchorEl(event.currentTarget);
-    else
-      setRegisterOpen(true)
+    if (!username) setProfileAnchorEl(event.currentTarget);
+    else setRegisterOpen(true);
   };
 
   const handleProfileClose = () => {
     setProfileAnchorEl(null);
   };
-// user Login Dialog open 
+  // user Login Dialog open
   const handleUserLoginOpen = () => {
     setUserLoginOpen(true);
   };
@@ -107,7 +106,7 @@ const Header = () => {
         <Image src={Assets.sideBar} alt="Sidebar" width={25} height={25} />
       </button>
       <SideBar sidebarOpen={sidebarOpen} toggleSideBar={toggleSideBar} /> */}
-{/* logo */}
+      {/* logo */}
       <div className="flex items-center space-x-4">
         {/* Agriconnect Logo */}
         <Image
@@ -121,7 +120,6 @@ const Header = () => {
 
       <div className="flex items-center space-x-4">
         <p>location</p>
-        
       </div>
 
       <div className="w-full max-w-lg mx-4">
@@ -138,7 +136,6 @@ const Header = () => {
       </div>
 
       <div className="flex items-center space-x-6 text-white">
-        
         {/* Profile section (previously Translation) */}
         <div className="flex items-center cursor-pointer">
           <Image
@@ -150,9 +147,9 @@ const Header = () => {
           />
           <Button
             id="profile-button"
-            aria-controls={profileMenuOpen ? 'profile-menu' : undefined}
+            aria-controls={profileMenuOpen ? "profile-menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={profileMenuOpen ? 'true' : undefined}
+            aria-expanded={profileMenuOpen ? "true" : undefined}
             onClick={handleProfileClick}
             className="text-white normal-case"
           >
@@ -167,15 +164,16 @@ const Header = () => {
             open={profileMenuOpen}
             onClose={handleProfileClose}
             MenuListProps={{
-              'aria-labelledby': 'profile-button',
+              "aria-labelledby": "profile-button",
             }}
           >
             {/* User */}
             <MenuItem>
               <div className="flex justify-between w-full">
                 <div className="space-x-2">
-                <span>User .. </span>
-                  <Button onClick={handleUserLoginOpen}>LOGIN</Button> | <Button onClick={handleRegisterOpen}>REGISTER</Button>
+                  <span>User .. </span>
+                  <Button onClick={handleUserLoginOpen}>LOGIN</Button> |{" "}
+                  <Button onClick={handleRegisterOpen}>REGISTER</Button>
                 </div>
               </div>
             </MenuItem>
@@ -194,10 +192,10 @@ const Header = () => {
             {/* Admin */}
             <MenuItem>
               <div className="flex justify-between w-full">
-              <div className="space-x-12">
-                <span>Admin </span>
-                <Button onClick={handleUserLoginOpen}>LOGIN</Button>
-              </div>
+                <div className="space-x-12">
+                  <span>Admin </span>
+                  <Button onClick={handleUserLoginOpen}>LOGIN</Button>
+                </div>
               </div>
             </MenuItem>
           </Menu>
@@ -214,9 +212,9 @@ const Header = () => {
           />
           <Button
             id="translate-button"
-            aria-controls={translateMenuOpen ? 'translate-menu' : undefined}
+            aria-controls={translateMenuOpen ? "translate-menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={translateMenuOpen ? 'true' : undefined}
+            aria-expanded={translateMenuOpen ? "true" : undefined}
             onClick={handleTranslateClick}
             className="text-white normal-case"
           >
@@ -231,14 +229,13 @@ const Header = () => {
             open={translateMenuOpen}
             onClose={handleEnTranslateClose}
             MenuListProps={{
-              'aria-labelledby': 'translate-button',
+              "aria-labelledby": "translate-button",
             }}
           >
             <MenuItem onClick={handleEnTranslateClose}>English</MenuItem>
             <MenuItem onClick={handleTaTranslateClose}>தமிழ்</MenuItem>
           </Menu>
         </div>
-
 
         <div className="flex items-center cursor-pointer px-4">
           <Image
@@ -249,28 +246,38 @@ const Header = () => {
             height={24}
             className="hover:opacity-80 transition duration-300"
           />
-          <p className="ml-2 hover:underline transition duration-300" onClick={handleFarmerLogin}>
+          <p
+            className="ml-2 hover:underline transition duration-300"
+            onClick={handleFarmerLogin}
+          >
             Become a Farmer
           </p>
         </div>
 
         <div className="flex items-center cursor-pointer px-4">
           <Image
+            onClick={handleCart}
             src={Assets.Cart}
             alt="Cart"
             width={24}
             height={24}
             className="hover:opacity-80 transition duration-300"
           />
-          <p className="ml-2 hover:underline transition duration-300">
+          <p
+            onClick={handleCart}
+            className="ml-2 hover:underline transition duration-300"
+          >
             {t("cart")}
           </p>
         </div>
       </div>
 
       <UserLoginDialog open={userLoginOpen} onClose={handleUserLoginClose} />
-      <FarmerLoginDialog open={farmerLoginOpen} onClose={handleFarmerLoginClose} />
-      <RegisterDialog Open={registerOpen} onClose={handleRegisterClose} />  
+      <FarmerLoginDialog
+        open={farmerLoginOpen}
+        onClose={handleFarmerLoginClose}
+      />
+      <RegisterDialog Open={registerOpen} onClose={handleRegisterClose} />
     </header>
   );
 };

@@ -29,6 +29,9 @@ import home09 from './image/home-assets-09.jpg';
 import home10 from './image/home-assets-10.jpg';
 import home11 from './image/home-assets-11.jpg';
 import home12 from './image/home-assets-12.png';
+import home13 from './image/home-assets-13.jpg';
+import home14 from './image/home-assets-14.jpg';
+import home15 from './image/home-assets-15.jpg';
 import x from './image/x.png';import bin from './image/bin.png';
 import order_page from './image/order_page.png';
 
@@ -71,6 +74,9 @@ export const Assets = {
     home10,
     home11,
     home12,
+    home13,
+    home14,
+    home15,
 
     x,
 };

@@ -1,30 +1,78 @@
+<<<<<<< HEAD
 
+=======
+"use client";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+>>>>>>> 0816d513a96de3d7b029165e75dff548d1da8389
 
 export default function Navbar() {
+  const router = useRouter();
+  const localeActive = useLocale();
+
   return (
     <nav className="bg-[#86efac] shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-center items-center space-x-12">
         {/* Nav Links */}
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">Home</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            Home
+          </a>
         </div>
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">About</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            About
+          </a>
         </div>
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">Order</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            Order
+          </a>
         </div>
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">Services</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            Services
+          </a>
         </div>
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">News</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            News
+          </a>
         </div>
         <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">Shop</a>
-        </div>
-        <div className="text-lg font-semibold">
-          <a href="/" className="hover:text-gray-700 transition-colors text-gray-800">Contact</a>
+          <a
+            onClick={() => {
+              router.push(`/${localeActive}/displayProduct`);
+            }}
+            className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
+          >
+            Shop
+          </a>
         </div>
       </div>
     </nav>
