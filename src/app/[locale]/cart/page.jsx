@@ -85,7 +85,7 @@ import Image from 'next/image';
                     </button>
                     <div className="flex items-center gap-2"> {/* Center-align buttons */}
                       <button
-                        className="px-2 py-1 bg-red-500 text-white rounded"
+                        className="px-2 py-1 bg-white-500 text-white rounded"
                         onClick={() => removeItem(item.id)}
                       >
                         <Image src={Assets.bin} alt="Delete" className="w-5 h-6" />
