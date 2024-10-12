@@ -1,24 +1,24 @@
-'use client';
-import React, { useState ,useEffect} from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
 // import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import Link from "next/link";
 import { useLocale } from "next-intl";
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
 
 export default function LoginDialog({ open, onClose }) {
   const localeActive = useLocale();
   const [isOtpLogin, setIsOtpLogin] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [errors, setErrors] = useState({});
   const [verifyEnabled, setVerifyEnabled] = useState(false);
@@ -28,10 +28,10 @@ export default function LoginDialog({ open, onClose }) {
   const toggleOtpLogin = () => {
     setIsOtpLogin(!isOtpLogin);
     setErrors({});
-    setEmail('');
-    setPassword('');
-    setPhone('');
-    setOtp('');
+    setEmail("");
+    setPassword("");
+    setPhone("");
+    setOtp("");
     setOtpSent(false);
     setVerifyEnabled(false);
   };
@@ -40,23 +40,22 @@ export default function LoginDialog({ open, onClose }) {
     const newErrors = {};
     if (!isOtpLogin) {
       if (!email) {
-        newErrors.email = 'Email is required';
+        newErrors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(email)) {
-        newErrors.email = 'Invalid email address';
+        newErrors.email = "Invalid email address";
       }
       if (!password) {
-        newErrors.password = 'Password is required';
+        newErrors.password = "Password is required";
       }
     } else {
       if (!phone) {
-        newErrors.phone = 'Phone number is required';
+        newErrors.phone = "Phone number is required";
       } else if (!/^\d{10}$/.test(phone)) {
-        newErrors.phone = 'Invalid phone number';
+        newErrors.phone = "Invalid phone number";
       }
     }
     return newErrors;
   };
-
 
   // Email and Password Login
   const handleEmailPasswordLogin = async (e) => {
@@ -66,7 +65,7 @@ export default function LoginDialog({ open, onClose }) {
       setErrors(validationErrors);
     } else {
       try {
-        const result = await signIn("credentials", {
+        const result = await signIn("loginWithPassword", {
           email,
           password,
           type: "user",
@@ -76,16 +75,13 @@ export default function LoginDialog({ open, onClose }) {
           router.push(`/${localeActive}`);
           console.log("Login successful");
         } else {
-          setErrors({...errors, password: result.error})
+          setErrors({ ...errors, password: result.error });
         }
       } catch (error) {
         console.error(error);
       }
     }
   };
-  
-  
-  
 
   const handleSendOtp = async () => {
     const validationErrors = validateForm();
@@ -93,7 +89,9 @@ export default function LoginDialog({ open, onClose }) {
       setErrors(validationErrors);
     } else {
       try {
-        const response = await axios.post(`/api/otp/createOTP`, { phoneNumber: '+91' + phone });
+        const response = await axios.post(`/api/otp/createOTP`, {
+          phoneNumber: "+91" + phone,
+        });
         if (response.status === 200) {
           setOtpSent(true);
           setErrors({});
@@ -108,17 +106,24 @@ export default function LoginDialog({ open, onClose }) {
     e.preventDefault();
     if (otp) {
       try {
-        const response = await axios.post(`/api/otp/verifyOTP`, { phoneNumber: '+91' + phone, otp });
-        if (response.status === 200) {
-          // Ensure this runs before the redirect
-          // router.push(`/${localeActive}`);
+        const result = await signIn("loginWithOtp", {
+          phoneNumber: "+91" + phone,
+          otp: otp,
+          type: "user",
+          redirect: false,
+        });
+        console.log("result", result);
+        if (result.status === 200) {
+          router.push(`/${localeActive}`);
+          console.log("Login successful");
+        } else {
+          setErrors({ ...errors, password: result.error });
         }
       } catch (error) {
         console.error(error);
       }
     }
   };
-  
 
   const handleOtpInputChange = (e) => {
     const value = e.target.value;
@@ -132,13 +137,20 @@ export default function LoginDialog({ open, onClose }) {
 
   return (
     <Dialog open={open} maxWidth="xs" fullWidth>
-      <DialogTitle>{isOtpLogin ? 'User Login with OTP' : 'User Login'}</DialogTitle>
+      <DialogTitle>
+        {isOtpLogin ? "User Login with OTP" : "User Login"}
+      </DialogTitle>
       <DialogContent>
-        <form onSubmit={isOtpLogin ? handleVerifyOtp : handleEmailPasswordLogin}>
+        <form
+          onSubmit={isOtpLogin ? handleVerifyOtp : handleEmailPasswordLogin}
+        >
           {!isOtpLogin ? (
             <>
               <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-600">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-600"
+                >
                   Email
                 </label>
                 <input
@@ -147,13 +159,20 @@ export default function LoginDialog({ open, onClose }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className={`mt-1 w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm`}
+                  className={`mt-1 w-full px-4 py-2 border ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  } rounded-lg shadow-sm`}
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div className="mb-6">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-600">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-600"
+                >
                   Password
                 </label>
                 <input
@@ -162,9 +181,13 @@ export default function LoginDialog({ open, onClose }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className={`mt-1 w-full px-4 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm`}
+                  className={`mt-1 w-full px-4 py-2 border ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  } rounded-lg shadow-sm`}
                 />
-                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                )}
               </div>
 
               <Button
@@ -172,7 +195,7 @@ export default function LoginDialog({ open, onClose }) {
                 variant="contained"
                 color="primary"
                 fullWidth
-                style={{ marginTop: '16px' }}
+                style={{ marginTop: "16px" }}
               >
                 Login
               </Button>
@@ -181,7 +204,10 @@ export default function LoginDialog({ open, onClose }) {
             <>
               <div className="mb-4 flex">
                 <div className="w-full">
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-600">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-600"
+                  >
                     Phone Number
                   </label>
                   <input
@@ -190,7 +216,9 @@ export default function LoginDialog({ open, onClose }) {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Enter your phone number"
-                    className={`mt-1 px-4 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm w-full`}
+                    className={`mt-1 px-4 py-2 border ${
+                      errors.phone ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm w-full`}
                   />
                 </div>
                 <div className="ml-2 mt-6">
@@ -204,11 +232,16 @@ export default function LoginDialog({ open, onClose }) {
                   </Button>
                 </div>
               </div>
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              )}
 
               {otpSent && (
                 <div className="mb-4">
-                  <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
+                  <label
+                    htmlFor="otp"
+                    className="block text-sm font-medium text-gray-600"
+                  >
                     Enter OTP
                   </label>
                   <input
@@ -217,7 +250,9 @@ export default function LoginDialog({ open, onClose }) {
                     value={otp}
                     onChange={handleOtpInputChange}
                     placeholder="Enter OTP"
-                    className={`mt-1 px-4 py-2 border ${errors.otp ? 'border-red-500' : 'border-gray-300'} rounded-lg shadow-sm w-full`}
+                    className={`mt-1 px-4 py-2 border ${
+                      errors.otp ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm w-full`}
                   />
                 </div>
               )}
@@ -230,7 +265,7 @@ export default function LoginDialog({ open, onClose }) {
               variant="contained"
               color="primary"
               fullWidth
-              style={{ marginTop: '16px' }}
+              style={{ marginTop: "16px" }}
               disabled={!verifyEnabled}
             >
               Verify OTP
@@ -239,11 +274,19 @@ export default function LoginDialog({ open, onClose }) {
         </form>
         <p className="text-sm text-center text-gray-600 mt-4">
           {isOtpLogin ? (
-            <a href="#" onClick={toggleOtpLogin} className="text-green-600 hover:underline">
+            <a
+              href="#"
+              onClick={toggleOtpLogin}
+              className="text-green-600 hover:underline"
+            >
               Back to Password Login
             </a>
           ) : (
-            <a href="#" onClick={toggleOtpLogin} className="text-green-600 hover:underline mt-2 block">
+            <a
+              href="#"
+              onClick={toggleOtpLogin}
+              className="text-green-600 hover:underline mt-2 block"
+            >
               Sign in with OTP
             </a>
           )}

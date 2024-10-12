@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-
+import axios from "axios";
+import verifyOTP from "../../otp/verifyOTP/route";
 const prisma = new PrismaClient();
 
 export const authOptions = {
@@ -10,51 +11,85 @@ export const authOptions = {
     // Existing Credentials-based login
     Credentials({
       name: "Credentials",
-      async authorize(credentials) {        
+      id: "loginWithPassword",
+      credentials: {
+        email: { label: "email", type: "email", placeholder: "Enter email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
         console.log("inside authorize (login) credentials", credentials);
         // Find user by email
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email , type: credentials.type}
+          where: { email: credentials.email, type: credentials.type },
         });
 
         // Validate user and password
-        if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
-          throw new Error('Invalid email or password');
+        if (
+          !user ||
+          !(await bcrypt.compare(credentials.password, user.password))
+        ) {
+          throw new Error("Invalid email or password");
         }
 
         // Return user details (session will store this)
-        return { id: user.id, email: user.email, role: user.role, name: `${user.firstName} ${user.lastName}` };
+        return {
+          userId: user.userId,
+          email: user.email,
+          role: user.role,
+          name: `${user.firstName} ${user.lastName}`,
+        };
       },
     }),
+    // OTP-based login
+    Credentials({
+      name: "OTP",
+      id: "loginWithOtp",
+      credentials: {
+        phoneNumber: {
+          label: "phoneNumber",
+          type: "number",
+          placeholder: "Enter phoneNumber",
+        },
+        otp: { label: "otp", type: "text" },
+      },
+      async authorize(credentials) {
+        console.log("otp log in ", credentials);
 
-    // New OTP-based provider
-    // CredentialsProvider({
-    //   name: "OTP Login",
-    //   credentials: {
-    //     phone: { label: "Phone", type: "text", placeholder: "Enter your phone number" },
-    //     otp: { label: "OTP", type: "text", placeholder: "Enter OTP" },
-    //   },
-    //   async authorize(credentials) {
-    //     const { phone, otp } = credentials;
+        // Find user by phone number
+        const user = await prisma.user.findFirst({
+          where: { phoneNumber: credentials.phoneNumber },
+        });
 
-    //     // Send phone and OTP to your backend to verify
-    //     const response = await axios.post(`/${locale}/api/otp/verifyOTP`, {
-    //       phoneNumber: `+91${phone}`,
-    //       otp: otp,
-    //     });
+        if (!user) {
+          throw new Error("User not found");
+        } else {
+          try {
+            const response = await verifyOTP(
+              credentials.phoneNumber,
+              credentials.otp
+            );
 
-    //     // If OTP verification fails
-    //     if (response.status !== 200) {
-    //       throw new Error('Invalid OTP');
-    //     }
-
-    //     // Assuming you return a user object from OTP verification
-    //     const { user } = response.data;
-
-    //     // Return user object if OTP is verified successfully
-    //     return { id: user.id, phone: user.phone, role: user.role, name: `${user.firstName} ${user.lastName}` };
-    //   },
-    // }),
+            console.log("otp response", response);
+            if (response.status === "valid") {
+              console.log("OTP verifiedkjh", response.data);
+              return {
+                userId: user.userId,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                role: user.role,
+                name: `${user.firstName} ${user.lastName}`,
+              };
+            } else {
+              return response;
+            }
+          } catch (error) {
+            console.log("-------->error", error);
+            console.error("OTP verification error:", error);
+            throw new Error("OTP verification error");
+          }
+        }
+      },
+    }),
   ],
 
   // JWT and session logic
@@ -64,14 +99,14 @@ export const authOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      let id = user?.id || token?.id
+      let userId = user?.userId || token?.userId;
       // Use the user ID from the session to fetch full user data
       const fullUser = await prisma.user.findUnique({
-        where: {id}
+        where: { userId },
       });
 
       if (fullUser) {
-        token.id = fullUser.id
+        token.userId = fullUser.userId;
         token.email = fullUser.email; // Store email in the session
         token.firstName = fullUser.firstName; // Store first name in the session
         token.lastName = fullUser.lastName; // Store last name in the session
@@ -83,17 +118,15 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
-
-        console.log("In session", session)
+      console.log("In session", session);
       // Populate session with token data
-      session.user.id = token.id;
+      session.user.userId = token.userId;
       session.user.email = token.email;
       session.user.name = token.name;
       session.user.type = token.type;
-      session.user.firstName = token.firstName; // Add this
-      session.user.lastName = token.lastName;   // Add this
-      session.user.phoneNumber = token.phoneNumber; // Optional
-
+      session.user.firstName = token.firstName;
+      session.user.lastName = token.lastName;
+      session.user.phoneNumber = token.phoneNumber;
       return session;
     },
   },
@@ -104,4 +137,4 @@ export const authOptions = {
 };
 
 const handlers = NextAuth(authOptions);
-export {handlers as GET, handlers as POST}
+export { handlers as GET, handlers as POST };

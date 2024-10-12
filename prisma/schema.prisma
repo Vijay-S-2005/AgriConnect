@@ -14,7 +14,7 @@ enum usertype {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
+  userId       Int       @id @default(autoincrement())  // Changed to userId
   firstName    String    @db.VarChar(255)
   lastName     String    @db.VarChar(255)
   phoneNumber  String    @db.VarChar(255)
@@ -23,9 +23,10 @@ model User {
   type         usertype
   createdAt    DateTime  @default(now())
 
-  // Relations with NextAuth models
+  // Relations
   accounts     Account[]       // Relation with Account for OAuth providers
   sessions     Session[]       // Relation with Session for session management
+  carts        Cart[]          // New relation with Cart
 }
 
 model OTP {
@@ -44,19 +45,31 @@ enum ProductType {
 }
 
 model Product {
-  id                 Int      @id @default(autoincrement())  // Primary Key with auto-increment
-  productName        String   @db.VarChar(255)               // Same as VARCHAR(255)
-  ProductDescription String?  @db.Text                      // TEXT in SQL, optional
-  type               ProductType                             // Enum type defined below
+  productId          Int      @id @default(autoincrement())  // Changed to productId
+  productName        String   @db.VarChar(255)               
+  ProductDescription String?  @db.Text                      
+  type               ProductType                             
   quantity           Int
-  ownerName          String   @db.VarChar(255)               // Same as VARCHAR(255)
-  price              Int                                      // Changed to INT
-  review             Int?                                     // Optional field
-  imageURL           String?  @db.VarChar(255)               // Optional and VARCHAR(255)
-  weight             Int                                      // Changed to INT
+  ownerName          String   @db.VarChar(255)               
+  price              Int                                      
+  review             Int?                                     
+  imageURL           String?  @db.VarChar(255)               
+  weight             Int                                      
+  
+  // Relations
+  carts              Cart[]   // New relation with Cart
 }
 
-// These models are required for NextAuth
+model Cart {
+  cartId     Int     @id @default(autoincrement())  // Primary Key
+  userId     Int                                  
+  productId  Int
+  quantity   Int     // Quantity of the product in the cart
+
+  // Relations
+  user       User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+}
 
 model Account {
   id                 Int      @id @default(autoincrement())
@@ -70,7 +83,7 @@ model Account {
   scope              String?  @db.Text
   id_token           String?  @db.Text
   session_state      String?  @db.Text
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -80,7 +93,7 @@ model Session {
   sessionToken String   @unique
   userId       Int
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -88,4 +101,3 @@ model VerificationToken {
   token        String   @unique
   expires      DateTime
 }
-

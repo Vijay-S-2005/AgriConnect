@@ -13,7 +13,13 @@ export default function DisplayProductPage() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const productsPerPage = 15; // Number of products to show per page
-  const columnsToFetch = ["productName", "imageURL", "price", "weight", "id"];
+  const columnsToFetch = [
+    "productName",
+    "imageURL",
+    "price",
+    "weight",
+    "productId",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,6 +99,7 @@ export default function DisplayProductPage() {
                   imageUrl={product.imageURL || Assets.Apple} // Fallback image
                   price={product.price}
                   weight={product.weight}
+                  productId={product.productId}
                 />
               ))}
             </div>

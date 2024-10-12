@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Assets } from "../../../../public/assets/Assets";
 import Image from "next/image";
+import axios from "axios";
+import { useLocale } from "next-intl";
 
 const staticCartData = [
   {
@@ -71,6 +73,7 @@ const staticCartData = [
 
 export default function CartTable() {
   const [cartItems, setCartItems] = useState(staticCartData);
+  const localeActive = useLocale();
 
   const increaseQuantity = (id) => {
     const updatedItems = cartItems.map((item) =>
@@ -103,7 +106,7 @@ export default function CartTable() {
             <th className="px-4 py-2 text-center">S.No</th>
             <th className="px-4 py-2 text-center">Name</th>
             <th className="px-4 py-2 text-center">Images</th>
-            <th className="px-4 py-2 text-center">Description</th>
+            {/* <th className="px-4 py-2 text-center">Description</th> */}
             <th className="px-4 py-2 text-center">Category</th>
             <th className="px-4 py-2 text-center">Price</th>
             <th className="px-4 py-2 text-center">Action</th>
@@ -122,7 +125,7 @@ export default function CartTable() {
                   className="w-24 h-24 object-cover"
                 />
               </td>
-              <td className="px-4 py-2 text-center">{item.description}</td>
+              {/* <td className="px-4 py-2 text-center">{item.description}</td> */}
               <td className="px-4 py-2 text-center">{item.category}</td>
               <td className="px-4 py-2 text-center">
                 ${item.price.toFixed(2)}
@@ -146,7 +149,6 @@ export default function CartTable() {
                   </button>
                   <div className="flex items-center gap-2">
                     {" "}
-
                     <div className="flex items-center gap-2">
                       {" "}
                       {/* Center-align buttons */}

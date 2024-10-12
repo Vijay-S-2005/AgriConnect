@@ -12,7 +12,6 @@ import FarmerLoginDialog from "../app/[locale]/Login/farmerLogin/page";
 import RegisterDialog from "@/app/[locale]/register/userRegister/page";
 import { useSession } from "next-auth/react";
 
-
 const Header = () => {
   const t = useTranslations("Header");
   const localeActive = useLocale();
@@ -171,7 +170,7 @@ const Header = () => {
             <MenuItem>
               <div className="flex justify-between w-full">
                 <div className="space-x-2">
-                  <span>User .. </span>
+                  <span>User </span>
                   <Button onClick={handleUserLoginOpen}>LOGIN</Button> |{" "}
                   <Button onClick={handleRegisterOpen}>REGISTER</Button>
                 </div>
@@ -190,14 +189,14 @@ const Header = () => {
             </MenuItem> */}
 
             {/* Admin */}
-            <MenuItem>
+            {/* <MenuItem>
               <div className="flex justify-between w-full">
                 <div className="space-x-12">
                   <span>Admin </span>
                   <Button onClick={handleUserLoginOpen}>LOGIN</Button>
                 </div>
               </div>
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
         </div>
 

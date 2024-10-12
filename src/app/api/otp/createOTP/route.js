@@ -41,16 +41,15 @@
 //       console.error('Error sending OTP:', error);
 // //       // return res.status(500).json({ message: 'Failed to send OTP' });
 //     }
-  
+
 //     return response;
 
 // //   // res.status(405).json({ message: 'Method not allowed' });
 // }
 
-
 // src/app/api/otp/createOTP/route.js
 import redis from "@/lib/redis";
-import otpGenerator from 'otp-generator';
+
 import twilio from "twilio";
 
 const accountSid = process.env.TWILIO_SID;
@@ -60,16 +59,19 @@ const client = twilio(accountSid, authToken);
 
 export async function POST(req) {
   const { phoneNumber } = await req.json();
-  console.log("phone number pa",phoneNumber);
+  console.log("phone number pa", phoneNumber);
   // const phoneNumber = "+917395963411";
-  if(!phoneNumber) {
-    return new Response(JSON.stringify({ message: 'Phone number is required' }), { status: 400 });
-  } 
-  const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
+  if (!phoneNumber) {
+    return new Response(
+      JSON.stringify({ message: "Phone number is required" }),
+      { status: 400 }
+    );
+  }
+  const otp = Math.floor(100000 + Math.random() * 900000);
 
   try {
     // Set key-value in Redis with 5 minutes expiry
-    await redis.set(phoneNumber, otp, 'EX', 300);
+    await redis.set(phoneNumber, otp, "EX", 300);
     console.log("OTP stored in Redis");
 
     try {
@@ -80,14 +82,20 @@ export async function POST(req) {
       // });
 
       console.log(`OTP ${otp} sent to ${phoneNumber}`);
-      return new Response(JSON.stringify({ message: 'OTP sent successfully!' }), { status: 200 });
-
+      return new Response(
+        JSON.stringify({ message: "OTP sent successfully!" }),
+        { status: 200 }
+      );
     } catch (error) {
-      console.error('Error sending OTP:', error);
-      return new Response(JSON.stringify({ message: 'Failed to send OTP' }), { status: 500 });
+      console.error("Error sending OTP:", error);
+      return new Response(JSON.stringify({ message: "Failed to send OTP" }), {
+        status: 500,
+      });
     }
   } catch (error) {
     console.error("Error storing OTP:", error);
-    return new Response(JSON.stringify({ message: 'Error storing OTP' }), { status: 500 });
+    return new Response(JSON.stringify({ message: "Error storing OTP" }), {
+      status: 500,
+    });
   }
 }
