@@ -62,14 +62,18 @@ model Product {
 
 model Cart {
   cartId     Int     @id @default(autoincrement())  // Primary Key
-  userId     Int                                  
+  userId     Int
   productId  Int
   quantity   Int     // Quantity of the product in the cart
 
   // Relations
   user       User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   product    Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+
+  // Unique constraint on userId and productId
+  @@unique([userId, productId])
 }
+
 
 model Account {
   id                 Int      @id @default(autoincrement())

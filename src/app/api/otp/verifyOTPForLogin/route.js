@@ -11,7 +11,7 @@ export default async function verifyOTP(phoneNumber, otp) {
 
   try {
     // Retrieve the OTP from Redis
-    const originalOtp = await redis.get(phoneNumber);
+    const originalOtp = await redis.get("+91" + phoneNumber);
     console.log("original otp", originalOtp);
 
     if (!originalOtp) {
