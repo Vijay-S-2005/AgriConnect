@@ -2,6 +2,7 @@
 import redis from "@/lib/redis";
 
 export default async function verifyOTP(phoneNumber, otp) {
+  console.log("in verifyOTP function");
   console.log("otp", otp);
   console.log("phone number", phoneNumber);
   let result = {
@@ -11,7 +12,7 @@ export default async function verifyOTP(phoneNumber, otp) {
 
   try {
     // Retrieve the OTP from Redis
-    const originalOtp = await redis.get("+91" + phoneNumber);
+    const originalOtp = await redis.get(phoneNumber);
     console.log("original otp", originalOtp);
 
     if (!originalOtp) {

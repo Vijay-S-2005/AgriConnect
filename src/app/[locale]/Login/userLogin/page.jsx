@@ -290,6 +290,7 @@ export default function LoginDialog({ open, onClose }) {
               Sign in with OTP
             </a>
           )}
+          
         </p>
       </DialogContent>
       <DialogActions>

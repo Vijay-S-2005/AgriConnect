@@ -11,56 +11,81 @@ export default function DisplayProductPage() {
   const localeActive = useLocale();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const productsPerPage = 15; // Number of products to show per page
-  const columnsToFetch = [
-    "productName",
-    "imageURL",
-    "price",
-    "weight",
-    "productId",
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 15;
+  const [minPrice, setMinPrice] = useState(0); // Default minimum price
+  const [maxPrice, setMaxPrice] = useState(100); // Default maximum price
+  const [filteredData, setFilteredData] = useState(null); // For filtered products
+  const [selectedCategory, setSelectedCategory] = useState(null); // Category filter
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.post(`/api/fetchProductDetail`, {
-          columns: columnsToFetch,
+          columns: [
+            "productName",
+            "imageURL",
+            "price",
+            "weight",
+            "productId",
+            "type",
+          ],
         });
-        console.log("Data fetched successfully:", response.data);
-        setData(response.data);
+
+        const products = response.data;
+        console.log("Products:", products);
+
+        // Extract minimum and maximum prices from products
+        const prices = products.map((product) => product.price);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+
+        setMinPrice(minPrice);
+        setMaxPrice(maxPrice);
+        setData(products);
+        setFilteredData(products); // Initially, no filters applied
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err);
       }
     };
 
-    // Call fetchData only once when the component is mounted
     fetchData();
   }, [localeActive]);
 
-  // Handle errors
+  const handleFilterApply = (selectedMin, selectedMax, category) => {
+    // Filter products by both price and category
+    const filtered = data.filter((product) => {
+      const matchesPrice =
+        product.price >= selectedMin && product.price <= selectedMax;
+      const matchesCategory = category
+        ? product.type.toLowerCase() === category.toLowerCase()
+        : true;
+      return matchesPrice && matchesCategory;
+    });
+    setFilteredData(filtered);
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    handleFilterApply(minPrice, maxPrice, category); // Reapply filters when category changes
+  };
+
+  const totalProducts = filteredData ? filteredData.length : 0;
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = filteredData
+    ? filteredData.slice(startIndex, endIndex)
+    : [];
+
   if (error) {
     return <p>Error fetching data: {error.message}</p>;
   }
 
-  // Pagination logic
-  const totalProducts = data ? data.length : 0;
-  const totalPages = Math.ceil(totalProducts / productsPerPage);
-  const startIndex = (currentPage - 1) * productsPerPage;
-  const endIndex = startIndex + productsPerPage;
-  const currentProducts = data ? data.slice(startIndex, endIndex) : [];
-
-  // Handle page change
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
   return (
     <>
       <div className="w-full relative">
-        {/* Product Image at the Top */}
-        {/* shop title image */}
         <Image
           className="w-full"
           src={Assets.order_page}
@@ -75,16 +100,17 @@ export default function DisplayProductPage() {
         </div>
       </div>
 
-      {/* Main container with flexbox layout */}
       <div className="flex">
-        {/* Left side: Filter Component */}
         <div className="w-1/4 h-screen bg-gray-100 p-4">
-          <FilterProduct />
+          <FilterProduct
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onFilterApply={handleFilterApply}
+            onCategorySelect={handleCategorySelect}
+          />
         </div>
 
-        {/* Right side: Product Cards */}
         <div className="w-3/4 p-4">
-          {/* Display current range and total results */}
           <p>
             Showing {startIndex + 1}–{Math.min(endIndex, totalProducts)} of{" "}
             {totalProducts} results
@@ -96,7 +122,7 @@ export default function DisplayProductPage() {
                 <ProductCard
                   key={index}
                   productName={product.productName}
-                  imageUrl={product.imageURL || Assets.Apple} // Fallback image
+                  imageUrl={product.imageURL || Assets.Apple}
                   price={product.price}
                   weight={product.weight}
                   productId={product.productId}
@@ -107,12 +133,11 @@ export default function DisplayProductPage() {
             <p>Loading...</p>
           )}
 
-          {/* Pagination Buttons */}
           <div className="mt-6 flex justify-center">
             {Array.from({ length: totalPages }, (_, index) => (
               <button
                 key={index}
-                onClick={() => handlePageChange(index + 1)}
+                onClick={() => setCurrentPage(index + 1)}
                 className={`mx-2 px-3 py-1 ${
                   currentPage === index + 1
                     ? "bg-blue-500 text-white"
@@ -122,10 +147,10 @@ export default function DisplayProductPage() {
                 {index + 1}
               </button>
             ))}
-            {/* Next button */}
+
             {currentPage < totalPages && (
               <button
-                onClick={() => handlePageChange(currentPage + 1)}
+                onClick={() => setCurrentPage(currentPage + 1)}
                 className="ml-4 px-3 py-1 bg-gray-200 text-black rounded"
               >
                 &gt;

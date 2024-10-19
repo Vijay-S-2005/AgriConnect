@@ -3,49 +3,41 @@ import { useState } from "react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Range } from "react-range";
 
-const SidebarFilter = ({ onSortChange }) => {
-  const [sortOption, setSortOption] = useState("price-low-high");
-  const [values, setValues] = useState([20, 100]); // Starting and ending price
-
-  const handleSortChange = (event) => {
-    const value = event.target.value;
-    setSortOption(value);
-    onSortChange(value);
-  };
+const SidebarFilter = ({
+  minPrice,
+  maxPrice,
+  onFilterApply,
+  onCategorySelect,
+}) => {
+  const [values, setValues] = useState([minPrice, maxPrice]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const applyPriceFilter = () => {
-    console.log(`Price range applied: ₹${values[0]} - ₹${values[1]}`);
+    onFilterApply(values[0], values[1], selectedCategory); // Pass category as well
+  };
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    onCategorySelect(category); // Notify parent of category selection
   };
 
   return (
     <div className="p-6 border border-gray-300 rounded-lg shadow-lg bg-white">
-      {/* Search Bar */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search product"
-          className="w-full p-3 bg-black bg-opacity-70 text-white placeholder-gray-300 rounded-md focus:outline-none hover:bg-opacity-80"
-        />
-      </div>
-
-      {/* Price Range Filter */}
       <div className="p-4 border border-gray-300 rounded-lg shadow-md mb-6">
         <h1 className="text-xl font-bold mb-4">Filter</h1>
         <h2 className="text-lg font-semibold mb-2">Price</h2>
 
         <div className="mb-4">
-          {/* Display current range values */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-700">₹{values[0]}</span>
             <span className="mx-2 text-gray-500">-</span>
             <span className="text-gray-700">₹{values[1]}</span>
           </div>
 
-          {/* Single slider with two dots */}
           <Range
             step={1}
-            min={20}
-            max={100}
+            min={minPrice}
+            max={maxPrice}
             values={values}
             onChange={(newValues) => setValues(newValues)}
             renderTrack={({ props, children }) => (
@@ -54,7 +46,7 @@ const SidebarFilter = ({ onSortChange }) => {
                 style={{
                   ...props.style,
                   height: "6px",
-                  background: "#FCD34D", // Yellow bar
+                  background: "#FCD34D",
                   borderRadius: "5px",
                 }}
                 className="w-full"
@@ -62,7 +54,7 @@ const SidebarFilter = ({ onSortChange }) => {
                 {children}
               </div>
             )}
-            renderThumb={({ props, index }) => (
+            renderThumb={({ props }) => (
               <div
                 {...props}
                 style={{
@@ -70,7 +62,7 @@ const SidebarFilter = ({ onSortChange }) => {
                   height: "20px",
                   width: "20px",
                   borderRadius: "50%",
-                  backgroundColor: "#10B981", // Green dots
+                  backgroundColor: "#10B981",
                   border: "2px solid white",
                   boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.2)",
                 }}
@@ -91,16 +83,13 @@ const SidebarFilter = ({ onSortChange }) => {
       <div className="p-4 border border-gray-300 rounded-lg shadow-md">
         <h2 className="text-lg font-semibold mb-3">Categories</h2>
         <ul className="space-y-2">
-          {[
-            "Agriculture",
-            "Farming",
-            "Fresh Vegetables",
-            "Harvest",
-            "Organic Food",
-          ].map((category, index) => (
+          {["Vegetable", "Fruit", "Grain", "Millet"].map((category, index) => (
             <li
               key={index}
-              className="flex justify-between items-center p-2 bg-white rounded-lg hover:bg-gray-100 transition"
+              onClick={() => handleCategoryClick(category)}
+              className={`flex justify-between items-center p-2 bg-white rounded-lg hover:bg-gray-100 transition cursor-pointer ${
+                selectedCategory === category ? "bg-green-200" : ""
+              }`}
             >
               <span className="text-gray-700">{category}</span>
               <ChevronRightIcon className="h-5 w-5 text-gray-400" />

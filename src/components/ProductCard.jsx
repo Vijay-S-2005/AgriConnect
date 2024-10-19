@@ -54,7 +54,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) {
             <h3 className="font-extrabold text-lg">{productName}</h3>
             <div className="flex items-center">
               <p className="text-lg font-light">
-                ₹ {price} - {weight}
+                ₹ {price} - {weight} Kg
               </p>
             </div>
             <button

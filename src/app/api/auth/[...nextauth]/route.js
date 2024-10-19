@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import axios from "axios";
 import verifyOTP from "../../otp/verifyOTPForLogin/route";
 const prisma = new PrismaClient();
 
@@ -53,10 +52,12 @@ export const authOptions = {
         otp: { label: "otp", type: "text" },
       },
       async authorize(credentials) {
+        console.log(`inside authorize (OTP) credentials`, credentials);
         // Find user by phone number
         const user = await prisma.user.findFirst({
           where: { phoneNumber: credentials.phoneNumber },
         });
+        console.log("user", user);
 
         if (!user) {
           throw new Error("User not found");
@@ -85,40 +86,6 @@ export const authOptions = {
             console.error("OTP verification error:", error);
             throw new Error("OTP verification error");
           }
-        }
-      },
-    }),
-
-    Credentials({
-      name: "OTP",
-      id: "OtpForRegister",
-      credentials: {
-        phoneNumber: {
-          label: "phoneNumber",
-          type: "number",
-          placeholder: "Enter phoneNumber",
-        },
-        otp: { label: "otp", type: "text" },
-      },
-      async authorize(credentials) {
-        try {
-          console.log("ulla vantaa daa namma thaan daa");
-          const response = await verifyOTP(
-            credentials.phoneNumber,
-            credentials.otp
-          );
-
-          console.log("otp response", response);
-          if (response.status === "valid") {
-            console.log("OTP verifiedkjh", response.data);
-            return response;
-          } else {
-            return response;
-          }
-        } catch (error) {
-          console.log("-------->error", error);
-          console.error("OTP verification error:", error);
-          throw new Error("OTP verification error");
         }
       },
     }),

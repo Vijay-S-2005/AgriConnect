@@ -15,18 +15,27 @@ export async function POST(req) {
 
     // Call the verifyOTP function
     const result = await verifyOTP(phoneNumber, otp);
+    console.log("result", result);
+    if (result.status === "valid") {
+      return new Response(JSON.stringify({ message: "valid OTP" }), {
+        status: 200,
+      });
+    } else {
+      return new Response(JSON.stringify({ message: "invalid OTP" }), {
+        status: 400,
+      });
+    }
 
-    // Return the result as a response
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    // // Return the result as a response
+    // return new Response(JSON.stringify(result), {
+    //   status: 200,
+    //   headers: { "Content-Type": "application/json" },
+    // });
   } catch (error) {
     console.error("Error verifying OTP:", error);
 
-    return new Response(
-      JSON.stringify({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ message: "Internal server error" }), {
+      status: 500,
+    });
   }
 }

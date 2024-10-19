@@ -129,7 +129,7 @@ export default function RegisterDialog({ Open, onClose }) {
           const otpResponse = await axios.post(
             `/api/otp/verifyOTPForRegister`,
             {
-              phoneNumber: formData.phoneNumber,
+              phoneNumber: '+91'+ formData.phoneNumber,
               otp: formData.otp,
             }
           );
