@@ -31,6 +31,33 @@ const Header = () => {
   const [translateAnchorEl, setTranslateAnchorEl] = React.useState(null);
   const translateMenuOpen = Boolean(translateAnchorEl);
 
+  // for suggestion
+  const suggestions = [
+    "apple",
+    "banana",
+    "carrot",
+    "avocado",
+    "grapes",
+    "orange",
+  ];
+  const [query, setQuery] = React.useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = React.useState([]);
+
+  const handleInputChange = (e) => {
+    const userInput = e.target.value;
+    setQuery(userInput);
+
+    // Filter suggestions based on user input
+    if (userInput) {
+      const filtered = suggestions.filter((item) =>
+        item.toLowerCase().startsWith(userInput.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  };
+
   const router = useRouter();
 
   const handleCart = () => {
@@ -121,10 +148,15 @@ const Header = () => {
         <p>location</p>
       </div>
 
-      <div className="w-full max-w-lg mx-4">
+      {/* search bar */}
+      <div className="w-full max-w-lg mx-4 relative">
+        {" "}
+        {/* Add relative here */}
         <div className="flex items-center bg-white rounded-xl shadow-md overflow-hidden">
           <input
             type="text"
+            value={query}
+            onChange={handleInputChange}
             placeholder={t("searchPlaceholder")}
             className="flex-1 px-4 py-1 text-gray-700 focus:outline-none"
           />
@@ -132,6 +164,23 @@ const Header = () => {
             {t("search")}
           </button>
         </div>
+        {/* Suggestions dropdown */}
+        {filteredSuggestions.length > 0 && (
+          <div className="absolute z-10 w-[86%] bg-white border border-gray-300 rounded-md mt-1 shadow-lg">
+            {filteredSuggestions.map((suggestion, index) => (
+              <div
+                key={index}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  setQuery(suggestion);
+                  setFilteredSuggestions([]); // Clear suggestions on selection
+                }}
+              >
+                {suggestion}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center space-x-6 text-white">
@@ -153,7 +202,7 @@ const Header = () => {
             className="text-white normal-case"
           >
             <p className="ml-2 hover:underline transition duration-300">
-              {session?.user ? t("profile") : t("login")}
+              {session?.user ? session.user.name : t("login")}
             </p>
           </Button>
 

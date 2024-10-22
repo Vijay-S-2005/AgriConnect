@@ -23,8 +23,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) {
   const handleAddToCart = async () => {
     try {
       console.log("session user id", session?.user?.userId);
-
-      const response = await axios.post("/api/updateCartTable", {
+      const response = await axios.post("/api/cart/updateCartTable", {
         userId: session?.user?.userId,
         productId: productId,
         quantity: 1,

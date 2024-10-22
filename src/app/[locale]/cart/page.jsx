@@ -6,6 +6,7 @@ import axios from "axios";
 import { useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
 import { loadStripe } from "@stripe/stripe-js";
+
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
@@ -46,31 +47,85 @@ export default function CartTable() {
     }
   }, [session]);
 
-  const increaseQuantity = (id) => {
-    const updatedItems = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-    );
-    setCartItems(updatedItems);
+  const increaseQuantity = async (id) => {
+    try {
+      const updatedItems = cartItems.map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+      setCartItems(updatedItems);
+
+      // Update the backend to increase quantity
+      await axios.post("/api/cart/updateCartQuantity", {
+        userId: session?.user?.userId,
+        productId: id,
+        quantity: 1, // Increment by 1
+      });
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
   };
 
-  const decreaseQuantity = (id) => {
-    const updatedItems = cartItems.map((item) =>
-      item.id === id && item.quantity > 1
-        ? { ...item, quantity: item.quantity - 1 }
-        : item
-    );
-    setCartItems(updatedItems);
+  const decreaseQuantity = async (id) => {
+    try {
+      const item = cartItems.find((item) => item.id === id);
+      if (item.quantity > 1) {
+        const updatedItems = cartItems.map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+        );
+        setCartItems(updatedItems);
+
+        // Update the backend to decrease quantity
+        await axios.post("/api/cart/updateCartQuantity", {
+          userId: session?.user?.userId,
+          productId: id,
+          quantity: -1, // Decrement by 1
+        });
+      } else {
+        removeItem(id); // Call the removeItem function if the quantity reaches 0
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
   };
 
-  const removeItem = (id) => {
-    const filteredItems = cartItems.filter((item) => item.id !== id);
-    setCartItems(filteredItems);
+  const removeItem = async (id) => {
+    try {
+      const item = cartItems.find((item) => item.id === id);
+
+      // Remove the item by setting its quantity to 0
+      const updatedItems = cartItems.filter((item) => item.id !== id);
+      setCartItems(updatedItems);
+
+      // Send request to backend to remove item (set quantity to -currentQuantity)
+      await axios.post("/api/cart/updateCartQuantity", {
+        userId: session?.user?.userId,
+        productId: id,
+        quantity: -item.quantity, // Remove the item by effectively setting quantity to zero
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   };
+
+  // New function to clear the cart
+  const clearCart = async () => {
+    try {
+      await axios.post("/api/cart/updateCartQuantity", {
+        userId: session?.user?.userId,
+        quantity: 0, // No productId means clearing the entire cart
+      });
+      setCartItems([]); // Clear the cart in the frontend
+    } catch (error) {
+      console.error("Error clearing the cart:", error);
+    }
+  };
+
   const handleCheckout = async () => {
     const stripe = await stripePromise;
     const response = await axios.post("/api/checkout", {
       items: cartItems,
     });
+
     const session = await response.data;
     await stripe.redirectToCheckout({ sessionId: session.id });
   };
@@ -143,7 +198,14 @@ export default function CartTable() {
           </div>
         </div>
       </div>
-      <div className="flex justify-center mt-4 pb-6">
+      <div className="flex justify-center mt-4 pb-6 gap-4">
+        {/* Clear Cart button */}
+        <button
+          onClick={clearCart}
+          className="bg-red-500 text-white font-bold py-2 px-4 rounded"
+        >
+          Clear Cart
+        </button>
         <button
           onClick={handleCheckout}
           className="bg-orange-500 text-white font-bold py-2 px-4 rounded"
