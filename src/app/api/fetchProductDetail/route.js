@@ -7,7 +7,20 @@ const prisma = new PrismaClient();
 export async function POST(req) {
   try {
     // Parse the request body to get the columns array
-    const { columns } = await req.json();
+    const { columns, where } = await req.json();
+    console.log("columns:", columns);
+    let prismaConditions = where?.conditions?.map((condition) => {
+      return {
+        [condition.field]: {
+          [condition.operator]: condition.value,
+        },
+      };
+    });
+    // condition = {
+    //   field: "id",
+    //   operator : "=",
+    //   value : "1"
+    // };
 
     // If no columns are provided, return an error
     if (!columns || !Array.isArray(columns) || columns.length === 0) {
@@ -18,12 +31,37 @@ export async function POST(req) {
     }
 
     // Fetch the specified columns from the 'product' table
-    const data = await prisma.product.findMany({
-      select: columns.reduce((acc, column) => {
-        acc[column] = true;
-        return acc;
-      }, {}),
-    });
+    let data = null;
+    console.log("where:", prismaConditions, where);
+    if (where == null) {
+      console.log("where is null");
+      data = await prisma.product.findMany({
+        select: columns.reduce((acc, column) => {
+          acc[column] = true;
+          return acc;
+        }, {}),
+      });
+    } else if (where.noOfConditions > 1) {
+      console.log("where has multiple conditions");
+      data = await prisma.product.findMany({
+        select: columns.reduce((acc, column) => {
+          acc[column] = true;
+          return acc;
+        }, {}),
+        where: {
+          [where.linkage]: prismaConditions,
+        },
+      });
+    } else {
+      console.log("where has single condition");
+      data = await prisma.product.findMany({
+        select: columns.reduce((acc, column) => {
+          acc[column] = true;
+          return acc;
+        }, {}),
+        where: prismaConditions[0],
+      });
+    }
 
     // Return the JSON response with the selected columns
     return new Response(JSON.stringify(data), {

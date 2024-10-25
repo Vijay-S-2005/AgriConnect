@@ -6,9 +6,18 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Assets } from "../../public/assets/Assets";
 import { useSession } from "next-auth/react";
+import { useLocale } from "next-intl";
 import axios from "axios";
 
-function ProductCard({ productName, imageUrl, price, weight, productId }) {
+function ProductCard({
+  productName,
+  imageUrl,
+  price,
+  weight,
+  productId,
+  category,
+}) {
+  const localeActive = useLocale();
   const { data: session, status } = useSession();
 
   // Add productId or slug
@@ -21,18 +30,49 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) {
     });
   };
   const handleAddToCart = async () => {
-    try {
-      console.log("session user id", session?.user?.userId);
-      const response = await axios.post("/api/cart/updateCartTable", {
-        userId: session?.user?.userId,
-        productId: productId,
+    if (session?.user?.userId) {
+      // User is logged in, store in the database
+      try {
+        const response = await axios.post("/api/cart/updateCartTable", {
+          userId: session?.user?.userId,
+          productId: productId,
+          quantity: 1,
+        });
+        onAddProducts();
+        
+        console.log("Product added to cart in DB", productId, productName);
+      } catch (error) {
+        console.error("Error adding product to cart:", error);
+      }
+    } else {
+      // User is not logged in, store in localStorage
+      const storedProducts = JSON.parse(localStorage.getItem("cart")) || [];
+      const newProduct = {
+        productId,
+        name: productName,
+        price,
+        image: imageUrl,
         quantity: 1,
-      });
+        category: category,
+      };
 
-      console.log("session user id", session?.user?.userId);
-      console.log("Product added to cart", productId, productName);
-    } catch (error) {
-      console.error("Error adding product to cart:", error);
+      // Check if the product already exists in the local storage cart
+      const existingProductIndex = storedProducts.findIndex(
+        (item) => item.productId === productId
+      );
+
+      if (existingProductIndex >= 0) {
+        // If product exists, increase the quantity
+        storedProducts[existingProductIndex].quantity += 1;
+      } else {
+        // Add new product to local storage
+        storedProducts.push(newProduct);
+      }
+
+      localStorage.setItem("cart", JSON.stringify(storedProducts));
+      onAddProducts();
+
+      console.log("Product added to localStorage cart", newProduct);
     }
   };
 
@@ -56,10 +96,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) {
                 ₹ {price} - {weight} Kg
               </p>
             </div>
-            <button
-              className="mt-3 flex border-2 rounded-lg bg-[#20E58F] hover:bg-[#229764] border-transparent focus:border-transparent focus:ring-0 text-white items-center p-2"
-              onClick={onAddProducts}
-            >
+            <button className="mt-3 flex border-2 rounded-lg bg-[#20E58F] hover:bg-[#229764] border-transparent focus:border-transparent focus:ring-0 text-white items-center p-2">
               <Image
                 src={Assets.Cart}
                 width={20}
@@ -73,7 +110,7 @@ function ProductCard({ productName, imageUrl, price, weight, productId }) {
           </div>
         </div>
         <div className="p-4">
-          <Link href={`/product/${productId}`} passHref>
+          <Link href={`/${localeActive}/detailedProduct/${productId}`} passHref>
             {" "}
             {/* Dynamic route for "See More" */}
             <a className="text-blue-600 hover:underline">See More</a>

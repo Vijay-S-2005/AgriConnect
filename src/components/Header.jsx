@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -20,6 +20,9 @@ const Header = () => {
   const [userLoginOpen, setUserLoginOpen] = React.useState(false);
   const [farmerLoginOpen, setFarmerLoginOpen] = React.useState(false);
   const [registerOpen, setRegisterOpen] = React.useState(false);
+  const [location, setLocation] = useState(null);
+  // const [error, setError] = useState(null);
+
   const { data: session, status } = useSession();
   const username = session?.user?.firstName || undefined;
 
@@ -30,34 +33,71 @@ const Header = () => {
   // State for Profile Menu (now Translation)
   const [translateAnchorEl, setTranslateAnchorEl] = React.useState(null);
   const translateMenuOpen = Boolean(translateAnchorEl);
+  // for search and suggesion
+  const [query, setQuery] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [error, setError] = useState("");
 
-  // for suggestion
-  const suggestions = [
-    "apple",
-    "banana",
-    "carrot",
-    "avocado",
-    "grapes",
-    "orange",
-  ];
-  const [query, setQuery] = React.useState("");
-  const [filteredSuggestions, setFilteredSuggestions] = React.useState([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (query.length === 0) {
+        setFilteredSuggestions([]); // Clear suggestions if input is empty
+        return;
+      }
+
+      setError(""); // Reset error state
+
+      try {
+        const response = await fetch("/api/suggestions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prefix: query }), // Send the query to the API
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        // Check if the response is an array
+        if (Array.isArray(data)) {
+          setFilteredSuggestions(data); // Set the received product names
+        } else {
+          setError(data.error || "Unexpected error occurred");
+        }
+      } catch (err) {
+        setError(err.message); // Handle any errors
+      }
+    };
+
+    fetchProducts(); // Call the API directly without debounce
+  }, [query]); // Effect runs when query changes
 
   const handleInputChange = (e) => {
-    const userInput = e.target.value;
-    setQuery(userInput);
+    setQuery(e.target.value); // Update query with user input
+  };
 
-    // Filter suggestions based on user input
-    if (userInput) {
-      const filtered = suggestions.filter((item) =>
-        item.toLowerCase().startsWith(userInput.toLowerCase())
+  const handleSearch = () => {
+    if (query.trim()) {
+      // Redirect to the DisplayProductPage with the search query
+      router.push(
+        `/${localeActive}/displayProduct?search=${encodeURIComponent(
+          query.trim()
+        )}`
       );
-      setFilteredSuggestions(filtered);
-    } else {
-      setFilteredSuggestions([]);
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch(); // Trigger search on Enter key
+    }
+  };
+  // for fetching location
+  // for therla
   const router = useRouter();
 
   const handleCart = () => {
@@ -144,27 +184,41 @@ const Header = () => {
         />
       </div>
 
-      <div className="flex items-center space-x-4">
-        <p>location</p>
-      </div>
+      {/* <div className="flex items-center space-x-4">
+        <div className="p-4 text-center">
+          {error ? (
+            <p className="text-red-500">{error}</p>
+          ) : location ? (
+            <p className="text-lg">
+              {location.district} {location.pincode}
+            </p>
+          ) : (
+            <p>Loading location...</p>
+          )}
+        </div>
+      </div> */}
 
       {/* search bar */}
       <div className="w-full max-w-lg mx-4 relative">
-        {" "}
-        {/* Add relative here */}
         <div className="flex items-center bg-white rounded-xl shadow-md overflow-hidden">
           <input
             type="text"
             value={query}
             onChange={handleInputChange}
-            placeholder={t("searchPlaceholder")}
+            onKeyDown={handleKeyDown}
+            placeholder="Search..." // Use your localization function if needed
             className="flex-1 px-4 py-1 text-gray-700 focus:outline-none"
           />
-          <button className="bg-green-700 text-white px-4 py-2 rounded-xl hover:bg-green-800 transition duration-300">
-            {t("search")}
+          <button
+            onClick={handleSearch}
+            className="bg-green-700 text-white px-4 py-2 rounded-xl hover:bg-green-800 transition duration-300"
+          >
+            Search
           </button>
         </div>
         {/* Suggestions dropdown */}
+        {error && <p className="text-red-500">{error}</p>}{" "}
+        {/* Show error message */}
         {filteredSuggestions.length > 0 && (
           <div className="absolute z-10 w-[86%] bg-white border border-gray-300 rounded-md mt-1 shadow-lg">
             {filteredSuggestions.map((suggestion, index) => (
@@ -172,7 +226,7 @@ const Header = () => {
                 key={index}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
-                  setQuery(suggestion);
+                  setQuery(suggestion); // Set query to selected suggestion
                   setFilteredSuggestions([]); // Clear suggestions on selection
                 }}
               >

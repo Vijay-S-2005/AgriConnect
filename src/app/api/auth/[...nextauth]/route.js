@@ -16,7 +16,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("inside authorize (login) credentials", credentials);
+        // console.log("inside authorize (login) credentials", credentials);
         // Find user by email
         const user = await prisma.user.findUnique({
           where: { email: credentials.email, type: credentials.type },
@@ -52,12 +52,12 @@ export const authOptions = {
         otp: { label: "otp", type: "text" },
       },
       async authorize(credentials) {
-        console.log(`inside authorize (OTP) credentials`, credentials);
+        // console.log(`inside authorize (OTP) credentials`, credentials);
         // Find user by phone number
         const user = await prisma.user.findFirst({
           where: { phoneNumber: credentials.phoneNumber },
         });
-        console.log("user", user);
+        // console.log("user", user);
 
         if (!user) {
           throw new Error("User not found");
@@ -68,9 +68,9 @@ export const authOptions = {
               credentials.otp
             );
 
-            console.log("otp response", response);
+            // console.log("otp response", response);
             if (response.status === "valid") {
-              console.log("OTP verifiedkjh", response.data);
+              // console.log("OTP verifiedkjh", response.data);
               return {
                 userId: user.userId,
                 email: user.email,
@@ -82,8 +82,7 @@ export const authOptions = {
               return response;
             }
           } catch (error) {
-            console.log("-------->error", error);
-            console.error("OTP verification error:", error);
+            // console.error("OTP verification error:", error);
             throw new Error("OTP verification error");
           }
         }
@@ -117,7 +116,7 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
-      console.log("In session", session);
+      // console.log("In session", session, "token", token);
       // Populate session with token data
       session.user.userId = token.userId;
       session.user.email = token.email;
@@ -129,6 +128,7 @@ export const authOptions = {
       return session;
     },
   },
+
   // pages: {
   //   signIn: "//${locale}/login",
   // },

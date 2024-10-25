@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { signIn, getSession } from "next-auth/react";
-// import { useSession } from 'next-auth/react';
+import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import axios from "axios";
@@ -13,6 +12,8 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 
 export default function LoginDialog({ open, onClose }) {
+  const { data: session, status } = useSession();
+
   const localeActive = useLocale();
   const [isOtpLogin, setIsOtpLogin] = useState(false);
   const [email, setEmail] = useState("");
@@ -72,8 +73,11 @@ export default function LoginDialog({ open, onClose }) {
           redirect: false,
         });
         if (!result.error) {
-          router.push(`/${localeActive}`);
           console.log("Login successful");
+          onClose();
+
+          // Force reload after login
+          window.location.reload();
         } else {
           setErrors({ ...errors, password: result.error });
         }
@@ -95,6 +99,7 @@ export default function LoginDialog({ open, onClose }) {
         if (response.status === 200) {
           setOtpSent(true);
           setErrors({});
+          // window.location.reload();
         }
       } catch (error) {
         console.error(error);
@@ -114,8 +119,10 @@ export default function LoginDialog({ open, onClose }) {
         });
         console.log("result", result);
         if (result.status === 200) {
-          router.push(`/${localeActive}`);
+          const currentPath = window.location.pathname;
+          router.push(currentPath); // Redirect to the current page after login
           console.log("Login successful");
+          onClose();
         } else {
           setErrors({ ...errors, password: result.error });
         }
@@ -290,7 +297,6 @@ export default function LoginDialog({ open, onClose }) {
               Sign in with OTP
             </a>
           )}
-          
         </p>
       </DialogContent>
       <DialogActions>

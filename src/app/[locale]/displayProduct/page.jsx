@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation"; // Import this to get the search params
 import ProductCard from "@/components/ProductCard";
 import { Assets } from "../../../../public/assets/Assets";
 import axios from "axios";
@@ -7,16 +8,20 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 import FilterProduct from "@/components/FilterProduct";
 
+
 export default function DisplayProductPage() {
   const localeActive = useLocale();
+  const searchParams = useSearchParams(); // To get the search query from the URL
+  const searchQuery = searchParams.get("search")?.toLowerCase() || ""; // Get 'search' param from URL
+
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 15;
-  const [minPrice, setMinPrice] = useState(0); // Default minimum price
-  const [maxPrice, setMaxPrice] = useState(100); // Default maximum price
-  const [filteredData, setFilteredData] = useState(null); // For filtered products
-  const [selectedCategory, setSelectedCategory] = useState(null); // Category filter
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(100);
+  const [filteredData, setFilteredData] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,9 +38,8 @@ export default function DisplayProductPage() {
         });
 
         const products = response.data;
-        console.log("Products:", products);
 
-        // Extract minimum and maximum prices from products
+        // Extract min and max prices
         const prices = products.map((product) => product.price);
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
@@ -43,7 +47,13 @@ export default function DisplayProductPage() {
         setMinPrice(minPrice);
         setMaxPrice(maxPrice);
         setData(products);
-        setFilteredData(products); // Initially, no filters applied
+
+        // Apply search filter if a search query exists
+        const filteredProducts = products.filter((product) =>
+          product.productName.toLowerCase().includes(searchQuery)
+        );
+
+        setFilteredData(filteredProducts); // Set filtered products based on search
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err);
@@ -51,7 +61,7 @@ export default function DisplayProductPage() {
     };
 
     fetchData();
-  }, [localeActive]);
+  }, [localeActive, searchQuery]); // Re-run the effect when locale or search query changes
 
   const handleFilterApply = (selectedMin, selectedMax, category) => {
     // Filter products by both price and category
@@ -63,7 +73,12 @@ export default function DisplayProductPage() {
         : true;
       return matchesPrice && matchesCategory;
     });
-    setFilteredData(filtered);
+
+    // Apply the search filter as well
+    const finalFilteredProducts = filtered.filter((product) =>
+      product.productName.toLowerCase().includes(searchQuery)
+    );
+    setFilteredData(finalFilteredProducts);
   };
 
   const handleCategorySelect = (category) => {
@@ -126,11 +141,12 @@ export default function DisplayProductPage() {
                   price={product.price}
                   weight={product.weight}
                   productId={product.productId}
+                  category={product.type}
                 />
               ))}
             </div>
           ) : (
-            <p>Loading...</p>
+            <p>no data found...</p>
           )}
 
           <div className="mt-6 flex justify-center">

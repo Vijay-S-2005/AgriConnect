@@ -103,6 +103,7 @@ export default function RegisterDialog({ Open, onClose }) {
   const handleLogout = () => {
     signOut({ redirect: false });
     onClose();
+    window.location.reload();
   };
 
   const handleSubmit = async (e) => {
@@ -129,7 +130,7 @@ export default function RegisterDialog({ Open, onClose }) {
           const otpResponse = await axios.post(
             `/api/otp/verifyOTPForRegister`,
             {
-              phoneNumber: '+91'+ formData.phoneNumber,
+              phoneNumber: "+91" + formData.phoneNumber,
               otp: formData.otp,
             }
           );

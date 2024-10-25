@@ -16,6 +16,7 @@ export default function CartTable() {
   const [cartItems, setCartItems] = useState([]);
   const localeActive = useLocale();
 
+  // console.log("session", session?.user);
   const getCartData = async () => {
     try {
       if (session?.user?.userId) {
@@ -33,8 +34,8 @@ export default function CartTable() {
           image: item.product.imageURL || "",
           quantity: item.quantity,
         }));
-
         setCartItems(transformedCartItems);
+        console.log("cart items", transformedCartItems);
       }
     } catch (error) {
       console.error("Error fetching cart data:", error);
@@ -43,67 +44,99 @@ export default function CartTable() {
 
   useEffect(() => {
     if (session?.user?.userId) {
-      getCartData();
+      getCartData(); // Fetch from the database if logged in
+    } else {
+      // Fetch from localStorage if not logged in
+      const localCartItems = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(localCartItems);
     }
   }, [session]);
 
   const increaseQuantity = async (id) => {
-    try {
+    if (session?.user?.userId) {
+      // Handle the logged-in case with the database
+      try {
+        const updatedItems = cartItems.map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+        setCartItems(updatedItems);
+
+        await axios.post("/api/cart/updateCartQuantity", {
+          userId: session?.user?.userId,
+          productId: id,
+          quantity: 1, // Increment by 1
+        });
+      } catch (error) {
+        console.error("Error updating quantity:", error);
+      }
+    } else {
+      // Handle localStorage for not logged-in users
       const updatedItems = cartItems.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       );
       setCartItems(updatedItems);
-
-      // Update the backend to increase quantity
-      await axios.post("/api/cart/updateCartQuantity", {
-        userId: session?.user?.userId,
-        productId: id,
-        quantity: 1, // Increment by 1
-      });
-    } catch (error) {
-      console.error("Error updating quantity:", error);
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
     }
   };
 
   const decreaseQuantity = async (id) => {
-    try {
+    if (session?.user?.userId) {
+      // Handle the logged-in case with the database
+      try {
+        const item = cartItems.find((item) => item.id === id);
+        if (item.quantity > 1) {
+          const updatedItems = cartItems.map((item) =>
+            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+          );
+          setCartItems(updatedItems);
+
+          await axios.post("/api/cart/updateCartQuantity", {
+            userId: session?.user?.userId,
+            productId: id,
+            quantity: -1, // Decrement by 1
+          });
+        } else {
+          removeItem(id); // Remove the item if quantity becomes 0
+        }
+      } catch (error) {
+        console.error("Error updating quantity:", error);
+      }
+    } else {
+      // Handle localStorage for not logged-in users
       const item = cartItems.find((item) => item.id === id);
       if (item.quantity > 1) {
         const updatedItems = cartItems.map((item) =>
           item.id === id ? { ...item, quantity: item.quantity - 1 } : item
         );
         setCartItems(updatedItems);
-
-        // Update the backend to decrease quantity
-        await axios.post("/api/cart/updateCartQuantity", {
-          userId: session?.user?.userId,
-          productId: id,
-          quantity: -1, // Decrement by 1
-        });
+        localStorage.setItem("cart", JSON.stringify(updatedItems));
       } else {
-        removeItem(id); // Call the removeItem function if the quantity reaches 0
+        removeItem(id); // Remove the item if quantity becomes 0
       }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
     }
   };
 
   const removeItem = async (id) => {
-    try {
-      const item = cartItems.find((item) => item.id === id);
+    if (session?.user?.userId) {
+      // Handle the logged-in case with the database
+      try {
+        const item = cartItems.find((item) => item.id === id);
+        const updatedItems = cartItems.filter((item) => item.id !== id);
+        setCartItems(updatedItems);
 
-      // Remove the item by setting its quantity to 0
+        await axios.post("/api/cart/updateCartQuantity", {
+          userId: session?.user?.userId,
+          productId: id,
+          quantity: -item.quantity, // Effectively remove item
+        });
+      } catch (error) {
+        console.error("Error removing item:", error);
+      }
+    } else {
+      // Handle localStorage for not logged-in users
       const updatedItems = cartItems.filter((item) => item.id !== id);
       setCartItems(updatedItems);
-
-      // Send request to backend to remove item (set quantity to -currentQuantity)
-      await axios.post("/api/cart/updateCartQuantity", {
-        userId: session?.user?.userId,
-        productId: id,
-        quantity: -item.quantity, // Remove the item by effectively setting quantity to zero
-      });
-    } catch (error) {
-      console.error("Error removing item:", error);
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
     }
   };
 
@@ -207,8 +240,13 @@ export default function CartTable() {
           Clear Cart
         </button>
         <button
-          onClick={handleCheckout}
-          className="bg-orange-500 text-white font-bold py-2 px-4 rounded"
+          onClick={session?.user ? handleCheckout : null} // Prevent click when no user session
+          className={`${
+            session?.user
+              ? "bg-orange-500 cursor-pointer"
+              : "bg-orange-300 cursor-not-allowed"
+          } text-white font-bold py-2 px-4 rounded`}
+          disabled={!session?.user} // Disable the button when no user session
         >
           Place Order
         </button>
