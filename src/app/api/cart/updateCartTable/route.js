@@ -4,7 +4,14 @@ const prisma = new PrismaClient();
 
 export async function POST(request) {
   try {
-    const { userId, productId, quantity } = await request.json();
+    let { userId, productId, quantity } = await request.json();
+
+    // Convert productId to integer if it's not already
+    productId = parseInt(productId, 10);
+
+    console.log("userId", userId);
+    console.log("productId", productId);
+    console.log("quantity", quantity);
 
     // Validate that all fields are present
     if (!userId || !productId || !quantity) {

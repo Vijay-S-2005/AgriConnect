@@ -11,6 +11,7 @@ import UserLoginDialog from "../app/[locale]/Login/userLogin/page";
 import FarmerLoginDialog from "../app/[locale]/Login/farmerLogin/page";
 import RegisterDialog from "@/app/[locale]/register/userRegister/page";
 import { useSession } from "next-auth/react";
+import { Autocomplete, TextField } from "@mui/material";
 
 const Header = () => {
   const t = useTranslations("Header");
@@ -62,7 +63,6 @@ const Header = () => {
 
         const data = await response.json();
 
-        // Check if the response is an array
         if (Array.isArray(data)) {
           setFilteredSuggestions(data); // Set the received product names
         } else {
@@ -73,16 +73,11 @@ const Header = () => {
       }
     };
 
-    fetchProducts(); // Call the API directly without debounce
-  }, [query]); // Effect runs when query changes
-
-  const handleInputChange = (e) => {
-    setQuery(e.target.value); // Update query with user input
-  };
+    fetchProducts();
+  }, [query]);
 
   const handleSearch = () => {
     if (query.trim()) {
-      // Redirect to the DisplayProductPage with the search query
       router.push(
         `/${localeActive}/displayProduct?search=${encodeURIComponent(
           query.trim()
@@ -91,12 +86,10 @@ const Header = () => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleSearch(); // Trigger search on Enter key
-    }
+  const handleInputChange = (event, value) => {
+    setQuery(value); // Update query based on user input
   };
-  // for fetching location
+
   // for therla
   const router = useRouter();
 
@@ -200,41 +193,38 @@ const Header = () => {
 
       {/* search bar */}
       <div className="w-full max-w-lg mx-4 relative">
-        <div className="flex items-center bg-white rounded-xl shadow-md overflow-hidden">
-          <input
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search..." // Use your localization function if needed
-            className="flex-1 px-4 py-1 text-gray-700 focus:outline-none"
-          />
-          <button
-            onClick={handleSearch}
-            className="bg-green-700 text-white px-4 py-2 rounded-xl hover:bg-green-800 transition duration-300"
-          >
-            Search
-          </button>
-        </div>
-        {/* Suggestions dropdown */}
-        {error && <p className="text-red-500">{error}</p>}{" "}
-        {/* Show error message */}
-        {filteredSuggestions.length > 0 && (
-          <div className="absolute z-10 w-[86%] bg-white border border-gray-300 rounded-md mt-1 shadow-lg">
-            {filteredSuggestions.map((suggestion, index) => (
-              <div
-                key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  setQuery(suggestion); // Set query to selected suggestion
-                  setFilteredSuggestions([]); // Clear suggestions on selection
-                }}
-              >
-                {suggestion}
-              </div>
-            ))}
-          </div>
-        )}
+        <Autocomplete
+          freeSolo
+          options={filteredSuggestions}
+          inputValue={query}
+          onInputChange={handleInputChange}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search"
+              variant="outlined"
+              placeholder="Search..."
+              error={!!error}
+              helperText={error || ""}
+              fullWidth
+              InputProps={{
+                ...params.InputProps,
+                style: {
+                  backgroundColor: "white", // Sets the background to white
+                },
+                endAdornment: (
+                  <button
+                    onClick={handleSearch}
+                    className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition duration-300"
+                  >
+                    Search
+                  </button>
+                ),
+              }}
+            />
+          )}
+        />
       </div>
 
       <div className="flex items-center space-x-6 text-white">

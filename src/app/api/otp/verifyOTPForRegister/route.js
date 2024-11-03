@@ -15,8 +15,9 @@ export async function POST(req) {
 
     // Call the verifyOTP function
     const result = await verifyOTP(phoneNumber, otp);
-    console.log("result", result);
+    console.log("result", result.status);
     if (result.status === "valid") {
+      console.log("hit");
       return new Response(JSON.stringify({ message: "valid OTP" }), {
         status: 200,
       });

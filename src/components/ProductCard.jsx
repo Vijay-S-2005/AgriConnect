@@ -33,6 +33,8 @@ function ProductCard({
     if (session?.user?.userId) {
       // User is logged in, store in the database
       try {
+    
+    
         const response = await axios.post("/api/cart/updateCartTable", {
           userId: session?.user?.userId,
           productId: productId,

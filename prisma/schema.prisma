@@ -14,7 +14,7 @@ enum usertype {
 }
 
 model User {
-  userId       Int       @id @default(autoincrement())  // Changed to userId
+  userId       Int       @id @default(autoincrement())
   firstName    String    @db.VarChar(255)
   lastName     String    @db.VarChar(255)
   phoneNumber  String    @unique @db.VarChar(255)
@@ -24,9 +24,10 @@ model User {
   createdAt    DateTime  @default(now())
 
   // Relations
-  accounts     Account[]       // Relation with Account for OAuth providers
-  sessions     Session[]       // Relation with Session for session management
-  carts        Cart[]          // New relation with Cart
+  accounts     Account[]
+  sessions     Session[]
+  carts        Cart[]
+  reviews      Review[]      // New relation with Review
 }
 
 model OTP {
@@ -45,19 +46,20 @@ enum ProductType {
 }
 
 model Product {
-  productId          Int      @id @default(autoincrement())  // Changed to productId
-  productName        String   @db.VarChar(255)               
-  ProductDescription String?  @db.Text                      
-  type               ProductType                             
+  productId          Int      @id @default(autoincrement())
+  productName        String   @db.VarChar(255)
+  ProductDescription String?  @db.Text
+  type               ProductType
   quantity           Int
-  ownerName          String   @db.VarChar(255)               
-  price              Int                                      
-  review             Int?                                     
-  imageURL           String?  @db.VarChar(255)               
-  weight             Int                                      
-  
+  ownerName          String   @db.VarChar(255)
+  price              Int
+  review             Int?
+  imageURL           String?  @db.VarChar(255)
+  weight             Int
+
   // Relations
-  carts              Cart[]   // New relation with Cart
+  carts              Cart[]
+  reviews            Review[]      // New relation with Review
 }
 
 model Cart {
@@ -104,4 +106,26 @@ model VerificationToken {
   identifier   String   @db.VarChar(255)
   token        String   @unique
   expires      DateTime
+}
+
+model orders{
+  orderId     Int       @id @default(autoincrement())
+  userId      Int
+  productId   Int
+  quantity    Int 
+  payment_method  String
+  total_amount  Int
+}
+
+model Review {
+  reviewId      Int      @id @default(autoincrement())
+  content       String   @db.Text
+  rating        Float    @default(0.0)
+  createdAt     DateTime @default(now())
+  userId        Int
+  productId     Int
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product       Product  @relation(fields: [productId], references: [productId], onDelete: Cascade)
 }

@@ -33,7 +33,7 @@ export default function Navbar() {
         <div className="text-lg font-semibold">
           <a
             onClick={() => {
-              router.push(`/${localeActive}`);
+              router.push(`/${localeActive}/yourOrders`);
             }}
             className="hover:text-gray-700 transition-colors text-gray-800 cursor-pointer"
           >

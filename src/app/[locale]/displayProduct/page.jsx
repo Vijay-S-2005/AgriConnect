@@ -8,7 +8,6 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 import FilterProduct from "@/components/FilterProduct";
 
-
 export default function DisplayProductPage() {
   const localeActive = useLocale();
   const searchParams = useSearchParams(); // To get the search query from the URL

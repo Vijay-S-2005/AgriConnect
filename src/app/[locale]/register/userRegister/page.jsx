@@ -134,8 +134,10 @@ export default function RegisterDialog({ Open, onClose }) {
               otp: formData.otp,
             }
           );
-          console.log("OTP response is", otpResponse.data.status);
-          if (otpResponse.data.status === "valid") {
+          console.log("OTP response jhgis", otpResponse);
+          console.log("OTP response is", otpResponse.status);
+          if (otpResponse.status === 200) {
+            console.log("OTP verification successful");
             // OTP verification successful, now register the user
             try {
               const registerResponse = await axios.post(`/api/register`, {
