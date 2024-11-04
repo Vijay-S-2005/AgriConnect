@@ -56,9 +56,12 @@ export default function CartTable() {
     if (session?.user?.userId) {
       // Handle the logged-in case with the database
       try {
+        console.log("cartItems", cartItems);
         const updatedItems = cartItems.map((item) =>
           item.id === id ? { ...item, quantity: item.quantity + 1 } : item
         );
+
+        console.log("updatedItems", updatedItems);
         setCartItems(updatedItems);
 
         await axios.post("/api/cart/updateCartQuantity", {
@@ -74,6 +77,7 @@ export default function CartTable() {
       const updatedItems = cartItems.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       );
+      console.log("updatedItems", updatedItems);
       setCartItems(updatedItems);
       localStorage.setItem("cart", JSON.stringify(updatedItems));
     }
@@ -159,8 +163,10 @@ export default function CartTable() {
       items: cartItems,
     });
 
+    
     const session = await response.data;
     await stripe.redirectToCheckout({ sessionId: session.id });
+
   };
 
   return (

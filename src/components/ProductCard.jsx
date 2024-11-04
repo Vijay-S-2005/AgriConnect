@@ -33,15 +33,13 @@ function ProductCard({
     if (session?.user?.userId) {
       // User is logged in, store in the database
       try {
-    
-    
         const response = await axios.post("/api/cart/updateCartTable", {
           userId: session?.user?.userId,
           productId: productId,
           quantity: 1,
         });
         onAddProducts();
-        
+
         console.log("Product added to cart in DB", productId, productName);
       } catch (error) {
         console.error("Error adding product to cart:", error);
@@ -50,7 +48,7 @@ function ProductCard({
       // User is not logged in, store in localStorage
       const storedProducts = JSON.parse(localStorage.getItem("cart")) || [];
       const newProduct = {
-        productId,
+        id: productId,
         name: productName,
         price,
         image: imageUrl,
